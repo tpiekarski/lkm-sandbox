@@ -34,9 +34,19 @@ static struct file_operations file_ops = {
 };
 
 static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* offset) {
-    // todo: implement reading operation
+    int bytes_read = 0;
 
-    return 0;
+    if (*message_ptr == 0) {
+        message_ptr = message_buffer;
+    }
+
+    while (len && *message_ptr) {
+        put_user(*(message_ptr++), buffer++);
+        len--;
+        bytes_read++;
+    }
+
+    return bytes_read;
 }
 
 static ssize_t device_write(struct file* flip, const char* buffer, size_t len, loff_t *offset) {

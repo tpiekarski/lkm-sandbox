@@ -1,0 +1,10 @@
+# Linux Kernel Module Build files
+*.ko
+*.mod
+*.mod.c
+*.o
+*.cmd
+
+# Meta Files
+Module.symvers
+modules.order

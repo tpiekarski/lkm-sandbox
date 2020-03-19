@@ -1,9 +1,9 @@
 # Linux Kernel Module Build files
+*.cmd
 *.ko
 *.mod
 *.mod.c
 *.o
-*.cmd
 
 # Meta Files
 Module.symvers

@@ -31,9 +31,9 @@ sudo rmmod lkm_device
 ## Modules
 #|Module|Source|Description
 ---|---|---|---
-1|LKM Sandbox|[lkm_sandbox.c](blob/master/lkm_sandbox.c)|A sandbox module for different experiments
-2|LKM Device|[lkm_device.c](blob/master/lkm_device.c)|A module showing how to operate with character devices
-3|LKM Skeleton|[lkm_skeleton.c](blob/master/lkm_skeleton.c)|A skeleton module for faster scaffolding little modules
+1|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|A sandbox module for different experiments
+2|LKM Device|[lkm_device.c](lkm_device.c)|A module showing how to operate with character devices
+3|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|A skeleton module for faster scaffolding little modules
 
 ## Notes
 "A Linux kernel module is a piece of compiled binary code that is inserted directly into 

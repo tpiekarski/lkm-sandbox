@@ -46,13 +46,22 @@ static ssize_t device_write(struct file* flip, const char* buffer, size_t len, l
 }
 
 static int device_open(struct inode* inode, struct file* file) {
-    // todo: implement device opening
+    if (device_open_count > 0) {
+        printk(KERN_INFO "Sandbox device already open.");
+        return -EBUSY;
+    }
+
+    printk(KERN_INFO "Opening sandbox device.");
+    device_open_count++;
+    try_module_get(THIS_MODULE);
 
     return 0;
 }
 
 static int device_release(struct inode* inode, struct file* file) {
-    // todo: implement device releasing
+    printk(KERN_INFO "Closing sandbox device.");
+    device_open_count--;
+    module_put(THIS_MODULE);
 
     return 0;
 }

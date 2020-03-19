@@ -36,11 +36,13 @@ static struct file_operations file_ops = {
 static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* offset) {
     int bytes_read = 0;
 
+    printk(KERN_INFO "Starting to read from sandbox device.\n");
     if (*message_ptr == 0) {
         message_ptr = message_buffer;
     }
 
     while (len && *message_ptr) {
+        printk(KERN_INFO "Reading from device...\n");
         put_user(*(message_ptr++), buffer++);
         len--;
         bytes_read++;
@@ -50,18 +52,18 @@ static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* 
 }
 
 static ssize_t device_write(struct file* flip, const char* buffer, size_t len, loff_t *offset) {
-    // todo: implement writing operation
+    printk(KERN_ALERT "Writing to sandbox device is not supported.\n");
 
-    return 0;
+    return -EINVAL;
 }
 
 static int device_open(struct inode* inode, struct file* file) {
     if (device_open_count > 0) {
-        printk(KERN_INFO "Sandbox device already open.");
+        printk(KERN_INFO "Sandbox device already open.\n");
         return -EBUSY;
     }
 
-    printk(KERN_INFO "Opening sandbox device.");
+    printk(KERN_INFO "Opening sandbox device.\n");
     device_open_count++;
     try_module_get(THIS_MODULE);
 
@@ -69,7 +71,7 @@ static int device_open(struct inode* inode, struct file* file) {
 }
 
 static int device_release(struct inode* inode, struct file* file) {
-    printk(KERN_INFO "Closing sandbox device.");
+    printk(KERN_INFO "Closing sandbox device.\n");
     device_open_count--;
     module_put(THIS_MODULE);
 

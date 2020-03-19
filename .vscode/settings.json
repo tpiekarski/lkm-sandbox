@@ -1,0 +1,14 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+
+    "files.exclude": {
+        "**/.git": true,
+        "**/*.cmd": true,
+        "**/*.ko": true,
+        "**/*.mod.c": true,
+        "**/*.mod": true,
+        "**/*.o": true,
+        "Module.symvers": true,
+        "modules.order": true
+    }
+}

@@ -81,11 +81,24 @@ static int device_release(struct inode* inode, struct file* file) {
 static int __init lkm_device_init(void) {
     printk(KERN_INFO "Initialize Sandbox Device Module...\n");
 
+    strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
+    message_ptr = message_buffer;
+    major_num = register_chrdev(0, DEVICE_NAME, &file_ops);
+
+    if (major_num < 0) {
+        printk(KERN_ALERT "Could not register sandbox device: %d\n", major_num);
+
+        return major_num;
+    }
+
+    printk(KERN_INFO "Registered sandbox device with major number %d\n", major_num);
+
     return 0;
 }
 
 static void __exit lkm_device_exit(void) {
     printk(KERN_INFO "Exiting Sandbox Device Module...\n");
+    unregister_chrdev(major_num, DEVICE_NAME);
 }
 
 module_init(lkm_device_init);

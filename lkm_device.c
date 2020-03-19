@@ -1,9 +1,19 @@
+/*
+ * LKM Device
+ *
+ */
+
+
+// Linux Kernel Headers for Module Development
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
+
+// Additional Headers for Devices
 #include <linux/fs.h>
 #include <asm/uaccess.h>
 
+// Module Meta Data (For available license see include/linux/module.h)
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("A Sandbox device module for the Linux Kernel");
@@ -25,13 +35,16 @@ static int major_num;
 static int device_open_count = 0;
 static char message_buffer[MESSAGE_BUFFER_LENGTH];
 static char* message_ptr;
-
 static struct file_operations file_ops = {
-    .open = device_open,
-    .read = device_read,
+    .open    = device_open,
+    .read    = device_read,
     .release = device_release,
-    .write = device_write
+    .write   = device_write
 };
+
+//
+// Device Operations
+//
 
 static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* offset) {
     int bytes_read = 0;
@@ -77,6 +90,10 @@ static int device_release(struct inode* inode, struct file* file) {
 
     return 0;
 }
+
+//
+// Module Init & Exit
+//
 
 static int __init lkm_device_init(void) {
     printk(KERN_INFO "Initialize Sandbox Device Module...\n");

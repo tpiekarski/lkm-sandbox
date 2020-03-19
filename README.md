@@ -14,8 +14,9 @@ make clean && make
 ## Testing
 Testing by loading, unloading and outputing Kernel Ring Buffer (sudo will ask for root permissions).
 ```
-make test module=lkm_sandbox
 make test module=lkm_device
+make test module=lkm_sandbox
+make test module=lkm_skeleton
 ```
 Additional tests for sandbox device including loading, creating device and getting messages.
 For creating character device the <major> is the major device number created when registering device in the init function. This number is written to the Kernel Ring Buffer.
@@ -26,6 +27,13 @@ sudo mknod /dev/lkm_device c <major> 0
 cat /dev/lkm_device
 sudo rmmod lkm_device 
 ```
+
+## Modules
+#|Module|Source|Description
+---|---|---|---
+1|LKM Sandbox|[lkm_sandbox.c](blob/master/lkm_sandbox.c)|A sandbox module for different experiments
+2|LKM Device|[lkm_device.c](blob/master/lkm_device.c)|A module showing how to operate with character devices
+3|LKM Skeleton|[lkm_skeleton.c](blob/master/lkm_skeleton.c)|A skeleton module for faster scaffolding little modules
 
 ## Notes
 "A Linux kernel module is a piece of compiled binary code that is inserted directly into 

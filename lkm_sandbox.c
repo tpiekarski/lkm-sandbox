@@ -9,13 +9,15 @@
 #include <linux/kernel.h>
 
 
-// Module Meta Data
-// For available license see include/linux/module.h
+// Module Meta Data (For available license see include/linux/module.h)
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("A sandbox for Linux Kernel Development");
 MODULE_VERSION("0.1");
 
+//
+// Module Init & Exit
+//
 
 // Function to initialize and load the module
 static int __init lkm_sandbox_init(void) {

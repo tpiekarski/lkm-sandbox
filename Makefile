@@ -8,7 +8,8 @@ clean:
 
 test:
 	$(info Testing Module 'lkm_sandbox' by loading and displaying Kernel Message Ring Buffer...)
-	sudo dmesg --clear
-	sudo insmod lkm_sandbox.ko
-	sudo rmmod lkm_sandbox.ko
-	dmesg
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	@sudo dmesg --clear
+	@sudo insmod lkm_sandbox.ko
+	@sudo rmmod lkm_sandbox.ko
+	@dmesg

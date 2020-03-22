@@ -21,7 +21,7 @@
 # 
 #
 
-obj-m += lkm_device.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_device.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

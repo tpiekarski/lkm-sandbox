@@ -23,8 +23,12 @@
 
 // Linux Kernel Headers for Module Development
 #include <linux/init.h>
-#include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/module.h>
+
+// Additional headers for the /proc filesystem
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
 
 // Module Meta Data
 MODULE_LICENSE("GPL");
@@ -32,21 +36,52 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Module for accesing the /proc filesystem");
 MODULE_VERSION("0.1");
 
+// Prototypes
+static const struct file_operations lkm_proc_fops;
+static int lkm_proc_open(struct inode *inode, struct file *file);
+static int lkm_proc_show(struct seq_file *seq, void *v);
+
+// Definitions
+#define LKM_PROC_FILE_NAME "lkm_proc"
+#define LKM_PROC_MESSAGE "Hello, /proc!\n"
+#define LKM_PROC_PERMISSION 0444
+
 //
 // Module Init & Exit
 //
 
 static int __init lkm_proc_init(void) {    
-    // todo: implement init
+    printk(KERN_INFO "Initializing module for accessing /proc/%s...\n", LKM_PROC_FILE_NAME);
+
+    proc_create(LKM_PROC_FILE_NAME, LKM_PROC_PERMISSION, NULL, &lkm_proc_fops);
+
     return 0;
 }
 
 static void __exit lkm_proc_exit(void) {
-    // todo: implement exit
+    printk(KERN_INFO "Removing /proc/%s...\n", LKM_PROC_FILE_NAME);
+
+    remove_proc_entry(LKM_PROC_FILE_NAME, NULL);
 }
 
+static const struct file_operations lkm_proc_fops = {
+    .llseek = seq_lseek,
+    .open = lkm_proc_open,
+    .owner = THIS_MODULE,
+    .read = seq_read,
+    .release = single_release
+};
+
+static int lkm_proc_open(struct inode *inode, struct file *file) {
+    return single_open(file, lkm_proc_show, NULL);
+}
+
+static int lkm_proc_show(struct seq_file *seq, void *v) {
+    seq_printf(seq, LKM_PROC_MESSAGE);
+
+    return 0;
+}
 
 // Registering init and exit functions
 module_init(lkm_proc_init);
 module_exit(lkm_proc_exit);
-

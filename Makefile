@@ -21,7 +21,7 @@
 # 
 #
 
-obj-m += lkm_device.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_device.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -36,6 +36,17 @@ test:
 	@sudo insmod $(module).ko
 	@sudo rmmod $(module).ko
 	@dmesg
+
+proctest:
+	$(eval proc_module = lkm_proc)
+	$(eval proc_file = /proc/$(proc_module))
+
+	$(info Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
+	$(info Root permissions are needed for loading and unloading with insmod/rmmod)
+	@sudo insmod $(proc_module).ko
+	@test -f $(proc_file) && echo "The file $(proc_file) exists." || echo "The file $(proc_file) does not exists."
+	@cat $(proc_file)
+	@sudo rmmod $(proc_file)
 
 license:
 	@echo " LKM Sandbox::Make\n\n \

@@ -29,7 +29,7 @@
 
 // Additional Headers for Devices
 #include <linux/fs.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 // Module Meta Data (For available license see include/linux/module.h)
 MODULE_LICENSE("GPL");

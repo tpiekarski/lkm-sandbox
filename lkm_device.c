@@ -74,7 +74,12 @@ static ssize_t device_read(struct file* flip, char* buffer, size_t len, loff_t* 
 
     while (len && *message_ptr) {
         printk(KERN_INFO "Reading from device...\n");
-        put_user(*(message_ptr++), buffer++);
+        if (put_user(*(message_ptr++), buffer++) == -EFAULT) {
+            printk(KERN_ALERT "Failed copying message from kernel to user space.\n");
+
+            break;
+        }
+
         len--;
         bytes_read++;
     }

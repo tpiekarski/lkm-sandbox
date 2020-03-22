@@ -37,6 +37,17 @@ test:
 	@sudo rmmod $(module).ko
 	@dmesg
 
+proctest:
+	$(eval proc_module = lkm_proc)
+	$(eval proc_file = /proc/$(proc_module))
+
+	$(info Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
+	$(info Root permissions are needed for loading and unloading with insmod/rmmod)
+	@sudo insmod $(proc_module).ko
+	@test -f $(proc_file) && echo "The file $(proc_file) exists..."
+	@cat $(proc_file)
+	@sudo rmmod $(proc_file)
+
 license:
 	@echo " LKM Sandbox::Make\n\n \
 	LKM Sandbox is free software: you can redistribute it and/or modify\n \

@@ -18,25 +18,34 @@ make clean && make
 Testing by loading, unloading and outputing Kernel Ring Buffer (sudo will ask for root permissions).
 ```
 make test module=lkm_device
+make test module=lkm_proc
 make test module=lkm_sandbox
 make test module=lkm_skeleton
 ```
-Additional tests for sandbox device including loading, creating device and getting messages.
+Tests for sandbox device including loading, creating device and getting messages.
 For creating character device the <major> is the major device number created when registering device in the init function. This number is written to the Kernel Ring Buffer.
 ```
 sudo insmod lkm_device.ko
 dmesg | grep "Registered sandbox device"
 sudo mknod /dev/lkm_device c <major> 0
-cat /dev/lkm_device
+test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" not found."
 sudo rmmod lkm_device 
+```
+
+Tests for sandbox proc including loading module, testing if file inside /proc exists and outputing that file. Either run the Makefile target *proctest* with ```make proctest``` or the following few commands:
+```
+sudo insmod lkm_proc.ko
+test -f /proc/lkm_proc && cat /proc/lkm_proc || echo "File /proc/lkm_proc not found."
+sudo rmmod lkm_proc
 ```
 
 ## [Modules](#modules)
 #|Module|Source|Description
 ---|---|---|---
-1|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|A sandbox module for different experiments
-2|LKM Device|[lkm_device.c](lkm_device.c)|A module showing how to operate with character devices
-3|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|A skeleton module for faster scaffolding little modules
+1|LKM Device|[lkm_device.c](lkm_device.c)|A module showing how to operate with character devices
+2|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc using sequential I/O
+3|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|A sandbox module for different experiments
+4|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|A skeleton module for faster scaffolding little modules
 
 ## [License](#license)
 LKM Sandbox is free software: you can redistribute it and/or modify
@@ -63,7 +72,14 @@ than operates in a sequential pattern."
 
 *"With kernel development, you’re writing APIs, not applications themselves."*
 
+"[...] module[s] cannot output more than one page of data to the pseudo-file at once. 
+A page is a pre-defined amount of memory, typically 4096 bytes, and is available in the 
+PAGE_SIZE macro. This limitation is bypassed by using sequence files, which provide an 
+interface to print multi-paged outputs easily [...]"
+
 ## [Links](#links)
-- [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234)
- by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
-- [GNU Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
+- GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
+- Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
+- Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
+- Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac
+- Superuser, [Variables in GNU Make...](https://superuser.com/questions/790560/variables-in-gnu-make-recipes-is-that-possible)

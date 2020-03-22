@@ -44,7 +44,7 @@ proctest:
 	$(info Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
 	$(info Root permissions are needed for loading and unloading with insmod/rmmod)
 	@sudo insmod $(proc_module).ko
-	@test -f $(proc_file) && echo "The file $(proc_file) exists..."
+	@test -f $(proc_file) && echo "The file $(proc_file) exists." || echo "The file $(proc_file) does not exists."
 	@cat $(proc_file)
 	@sudo rmmod $(proc_file)
 

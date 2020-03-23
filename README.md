@@ -1,7 +1,7 @@
 # Linux Kernel Module (LKM) Sandbox
 
 ## Overview
-[Building](#building) / [Testing](#testing) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
+[Building](#building) / [Testing](#testing) / [Make](#make) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
 
 The Linux Kernel Module Sandbox is a little module to learn, test and experiment with
 the development of Kernel Modules for the Linux System. It won't be anything very usable
@@ -15,15 +15,21 @@ make clean && make
 ```
 
 ## [Testing](#testing)
+To run all tests, including loading/unloading and proc test.
+```
+make test
+```
+
 Testing by loading, unloading and outputing Kernel Ring Buffer (sudo will ask for root permissions).
 ```
-make test module=lkm_device
-make test module=lkm_proc
-make test module=lkm_sandbox
-make test module=lkm_skeleton
+make test-module name=lkm_device
+make test-module name=lkm_proc
+make test-module name=lkm_sandbox
+make test-module name=lkm_skeleton
 ```
-Tests for sandbox device including loading, creating device and getting messages.
-For creating character device the <major> is the major device number created when registering device in the init function. This number is written to the Kernel Ring Buffer.
+Additional tests for sandbox device including loading, creating device and getting messages.
+For creating character device the <major> is the major device number created when registering device in the init function. 
+This number is written to the Kernel Ring Buffer.
 ```
 sudo insmod lkm_device.ko
 dmesg | grep "Registered sandbox device"
@@ -32,12 +38,17 @@ test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" 
 sudo rmmod lkm_device 
 ```
 
-Tests for sandbox proc including loading module, testing if file inside /proc exists and outputing that file. Either run the Makefile target *proctest* with ```make proctest``` or the following few commands:
+Tests for sandbox proc including loading module, testing if file inside /proc exists and outputing that file. 
+Either run the Makefile target *proctest* with ```make test-proc``` or the following few commands:
 ```
 sudo insmod lkm_proc.ko
 test -f /proc/lkm_proc && cat /proc/lkm_proc || echo "File /proc/lkm_proc not found."
 sudo rmmod lkm_proc
 ```
+
+## [Make](#make)
+![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
+
 
 ## [Modules](#modules)
 #|Module|Source|Description
@@ -71,11 +82,6 @@ and unloading of your module, you’ll be writing code that responds to system e
 than operates in a sequential pattern."
 
 *"With kernel development, you’re writing APIs, not applications themselves."*
-
-"[...] module[s] cannot output more than one page of data to the pseudo-file at once. 
-A page is a pre-defined amount of memory, typically 4096 bytes, and is available in the 
-PAGE_SIZE macro. This limitation is bypassed by using sequence files, which provide an 
-interface to print multi-paged outputs easily [...]"
 
 ## [Links](#links)
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)

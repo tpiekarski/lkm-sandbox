@@ -30,23 +30,40 @@ clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 test:
-	$(info Testing Module '$(module)' by loading and displaying Kernel Message Ring Buffer...)
-	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(info Running all available tests...)
+	@make test-module name=lkm_device
+	@make test-module name=lkm_proc
+	@make test-module name=lkm_sandbox
+	@make test-module name=lkm_skeleton
+	@make test-proc
+
+test-module:
+	$(info >> Testing Module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	
+	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
+	$(eval filename = ${name}.ko)
+	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
+	
 	@sudo dmesg --clear
-	@sudo insmod $(module).ko
-	@sudo rmmod $(module).ko
+	@sudo insmod ${filename}
+	@sudo rmmod ${filename}
 	@dmesg
 
-proctest:
+test-proc:
 	$(eval proc_module = lkm_proc)
 	$(eval proc_file = /proc/$(proc_module))
 
-	$(info Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
-	$(info Root permissions are needed for loading and unloading with insmod/rmmod)
-	@sudo insmod $(proc_module).ko
-	@test -f $(proc_file) && echo "The file $(proc_file) exists." || echo "The file $(proc_file) does not exists."
+	$(info >> Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
+	$(info >> Root permissions are needed for loading and unloading with insmod/rmmod)
+	
+	$(eval filename = ${proc_module}.ko)
+	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
+	
+	@sudo insmod ${filename}
+	@test -f $(proc_file) && echo ">> The file $(proc_file) exists." || (echo "!! The file $(proc_file) does not exists."; exit 3)
 	@cat $(proc_file)
-	@sudo rmmod $(proc_file)
+	@sudo rmmod ${filename}
 
 license:
 	@echo " LKM Sandbox::Make\n\n \

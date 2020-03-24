@@ -39,10 +39,11 @@ test:
 	@make test-module name=lkm_sandbox
 	@make test-module name=lkm_skeleton
 	@make test-device
+	@make test-parameters
 	@make test-proc
 
 test-device:
-	$(info >> Testing Module lkm_device by loading, accessing major device number in /proc and creating device)
+	$(info >> Additional testing module 'lkm_device' by loading, accessing major device number in /proc and creating device)
 	$(info >> Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
 
 	$(eval module_filename = lkm_device.ko)
@@ -66,7 +67,7 @@ test-device:
 	@sudo rmmod $(module_filename)
 
 test-module:
-	$(info >> Testing Module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 	
 	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
@@ -83,7 +84,7 @@ test-parameters:
 	$(eval number = 22)
 	$(eval message = I am a Makefile)
 
-	$(info >> Testing module 'lkm_parameters' by loading and checking in /sys filesystem)
+	$(info >> Additional testing module 'lkm_parameters' by loading and checking parameters in /sys filesystem)
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
 	$(eval filename = ${module}.ko)
@@ -101,7 +102,7 @@ test-proc:
 	$(eval proc_module = lkm_proc)
 	$(eval proc_file = /proc/$(proc_module))
 
-	$(info >> Testing module 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
+	$(info >> Additional testing module 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
 	$(info >> Root permissions are needed for loading/unloading with insmod/rmmod)
 	
 	$(eval filename = ${proc_module}.ko)

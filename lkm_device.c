@@ -35,6 +35,9 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
+// Additional Headers for module parameters
+#include <linux/moduleparam.h>
+
 // Module Meta Data (For available license see include/linux/module.h)
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
@@ -55,12 +58,14 @@ static int proc_show(struct seq_file*, void*);
 #define DEVICE_NAME "lkm_device"
 #define MESSAGE "Hello, Linux!\n"
 #define MESSAGE_BUFFER_LENGTH 15
+#define PARAM_MAJOR_NUM_PERMISSION 0664
 #define PROC_FILE_NAME "lkm_device_major"
 #define PROC_PARENT NULL // root of /proc fs
 #define PROC_PERMISSION 0444
 
 // Global Variables
 static int major_num;
+static int param_major_num = 0;
 static int device_open_count = 0;
 static char message_buffer[MESSAGE_BUFFER_LENGTH];
 static char* message_ptr;
@@ -80,6 +85,9 @@ static struct file_operations proc_fops = {
     .release = single_release
 };
 struct proc_dir_entry *proc_major_entry;
+
+// Module parameters
+module_param(param_major_num, int, PARAM_MAJOR_NUM_PERMISSION);
 
 //
 // Device Operations
@@ -182,10 +190,15 @@ static int device_init_sub(void) {
 
     strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
     message_ptr = message_buffer;
-    major_num = register_chrdev(0, DEVICE_NAME, &device_fops);
+
+    if (param_major_num != 0) {
+        printk(KERN_INFO "Trying to allocate %d as major for sandbox device.\n", param_major_num);
+    }
+
+    major_num = register_chrdev(param_major_num, DEVICE_NAME, &device_fops);
 
     if (major_num < 0) {
-        printk(KERN_ALERT "Failed to register sandbox device (major %d).\n", major_num);
+        printk(KERN_ALERT "Failed to register sandbox device with major %d.\n", major_num);
 
         return -1;
     }

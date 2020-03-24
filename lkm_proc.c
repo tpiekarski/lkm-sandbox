@@ -46,7 +46,7 @@ static int lkm_proc_show(struct seq_file *seq, void *v);
 #define LKM_PROC_PARENT NULL // root of /proc
 #define LKM_PROC_PERMISSION 0444
 
-// Structures
+// Global Structures
 struct proc_dir_entry *lkm_proc_entry;
 static const struct file_operations lkm_proc_fops = {
     .llseek = seq_lseek,

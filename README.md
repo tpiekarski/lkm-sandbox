@@ -3,11 +3,10 @@
 ## Overview
 [Building](#building) / [Testing](#testing) / [Make](#make) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
 
-The Linux Kernel Module Sandbox is a little module to learn, test and experiment with
-the development of Kernel Modules for the Linux System. It won't be anything very usable
-and there won't be any new driver emerging from this sandbox (at least it is not intented).
-That module is only for learning and study purpose and will contain also heavy comments
-explaning things in the source code.
+The Linux Kernel Module Sandbox is a little module to learn, test and experiment with the development of Kernel Modules 
+for the Linux System. It won't be anything very usable and there won't be any new driver emerging from this sandbox 
+(at least it is not intended). That module is only for learning and study purpose and will contain also a few comments
+explaining things in the source code.
 
 ## [Building](#building)
 ```
@@ -20,7 +19,7 @@ To run all available tests, including basic loading/unloading and both additiona
 make test
 ```
 
-Testing by loading, unloading and outputing Kernel Ring Buffer (sudo will ask for root permissions).
+Testing by loading, unloading and outputting Kernel Ring Buffer (sudo will ask for root permissions).
 ```
 make test-module name=lkm_device
 make test-module name=lkm_parameters
@@ -29,9 +28,9 @@ make test-module name=lkm_sandbox
 make test-module name=lkm_skeleton
 ```
 
-Additonal tests for the sandbox device including loading module, gathering major device number from /proc, creating device and comparing 
+Additional tests for the sandbox device including loading module, gathering major device number from /proc, creating device and comparing 
 the final message either run the Makefile target with ```make test-device``` or run the following commands. 
-For creating character device the major number is needed and can be obtained by cating the file /proc/lkm_device_major. 
+For creating character device the major number is needed and can be obtained by catting the file /proc/lkm_device_major. 
 This major number is written to the Kernel Ring Buffer as well.
 ```
 sudo insmod lkm_device.ko
@@ -41,8 +40,8 @@ test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" 
 sudo rmmod lkm_device 
 ```
 
-Additional tests for sandbox access to /proc including loading module, testing if file inside /proc exists and outputing that file. 
-Either run the Makefile target *proctest* with ```make test-proc``` or the following few commands:
+Additional tests for sandbox access to /proc including loading module, testing if file inside /proc exists and outputting that file. 
+Either run the Makefile target *test-proc* with ```make test-proc``` or the following few commands:
 ```
 sudo insmod lkm_proc.ko
 test -f /proc/lkm_proc && cat /proc/lkm_proc || echo "File /proc/lkm_proc not found."

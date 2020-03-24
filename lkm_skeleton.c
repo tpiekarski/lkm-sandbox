@@ -26,11 +26,22 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 
+// Prototypes
+// ...
 
-// Module Meta Data (For available license see include/linux/module.h)
+// Definitions
+// ...
+
+// Global Variables
+// ...
+
+// Global Structures
+// ...
+
+// Module Meta Data
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
-MODULE_DESCRIPTION("A skeleton for Linux Kernel Development");
+MODULE_DESCRIPTION("A skeleton module for Linux Kernel Development");
 MODULE_VERSION("0.1");
 
 //
@@ -50,4 +61,3 @@ static void __exit lkm_skeleton_exit(void) {
 // Registering init and exit functions
 module_init(lkm_skeleton_init);
 module_exit(lkm_skeleton_exit);
-

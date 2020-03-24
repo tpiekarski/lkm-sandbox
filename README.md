@@ -15,7 +15,7 @@ make clean && make
 ```
 
 ## [Testing](#testing)
-To run all tests, including loading/unloading and proc test.
+To run all available tests, including basic loading/unloading and both additional tests for device and /proc.
 ```
 make test
 ```
@@ -27,8 +27,10 @@ make test-module name=lkm_proc
 make test-module name=lkm_sandbox
 make test-module name=lkm_skeleton
 ```
-Additional tests for sandbox device including loading, creating device and getting messages.
-For creating character device the major number is needed and can be obtained by cating the file /proc/lkm_device_major.
+
+Additonal tests for the sandbox device including loading module, gathering major device number from /proc, creating device and comparing 
+the final message either run the Makefile target with ```make test-device``` or run the following commands. 
+For creating character device the major number is needed and can be obtained by cating the file /proc/lkm_device_major. 
 This major number is written to the Kernel Ring Buffer as well.
 ```
 sudo insmod lkm_device.ko
@@ -38,7 +40,7 @@ test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" 
 sudo rmmod lkm_device 
 ```
 
-Tests for sandbox proc including loading module, testing if file inside /proc exists and outputing that file. 
+Additional tests for sandbox access tp /proc including loading module, testing if file inside /proc exists and outputing that file. 
 Either run the Makefile target *proctest* with ```make test-proc``` or the following few commands:
 ```
 sudo insmod lkm_proc.ko

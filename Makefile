@@ -21,6 +21,8 @@
 # 
 #
 
+SHELL:=/bin/bash
+
 obj-m += lkm_device.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:
@@ -35,7 +37,32 @@ test:
 	@make test-module name=lkm_proc
 	@make test-module name=lkm_sandbox
 	@make test-module name=lkm_skeleton
+	@make test-device
 	@make test-proc
+
+test-device:
+	$(info >> Testing Module lkm_device by loading, accessing major device number in /proc and creating device)
+	$(info >> Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
+
+	$(eval module_filename = lkm_device.ko)
+	$(eval proc_filename = /proc/lkm_device_major)
+	$(eval device_filename = /dev/lkm_device)
+	$(eval message = Hello, Linux!)
+
+	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 2)
+	@sudo insmod $(module_filename)
+	@test -f ${proc_filename} \
+		|| (echo "!! The /proc file containing devices major number could not be found."; exit 3) \
+		&& echo ">> Found /proc file for accessing devices major number"
+	@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+	@test -c $(device_filename) \
+		|| (echo "!! Failed creating device file $(device_filename)."; exit 4) \
+		&& echo ">> Successfully created device $(device_filename)."
+	@test "\"`head -n 1 $(device_filename)`\"" = "\"$(message)\"" \
+		|| (echo "!! The message is not equal to $(message)."; exit 5) \
+		&& (echo ">> The message is equal to what was expected.")
+	@sudo rm $(device_filename)
+	@sudo rmmod $(module_filename)
 
 test-module:
 	$(info >> Testing Module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
@@ -54,8 +81,8 @@ test-proc:
 	$(eval proc_module = lkm_proc)
 	$(eval proc_file = /proc/$(proc_module))
 
-	$(info >> Testing access to /proc filesystem with the module '$(proc_module)' by loading and cating '$(proc_file)'...)
-	$(info >> Root permissions are needed for loading and unloading with insmod/rmmod)
+	$(info >> Testing module 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
+	$(info >> Root permissions are needed for loading/unloading with insmod/rmmod)
 	
 	$(eval filename = ${proc_module}.ko)
 	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)

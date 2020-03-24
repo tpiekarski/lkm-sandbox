@@ -41,12 +41,23 @@ test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" 
 sudo rmmod lkm_device 
 ```
 
-Additional tests for sandbox access tp /proc including loading module, testing if file inside /proc exists and outputing that file. 
+Additional tests for sandbox access to /proc including loading module, testing if file inside /proc exists and outputing that file. 
 Either run the Makefile target *proctest* with ```make test-proc``` or the following few commands:
 ```
 sudo insmod lkm_proc.ko
 test -f /proc/lkm_proc && cat /proc/lkm_proc || echo "File /proc/lkm_proc not found."
 sudo rmmod lkm_proc
+```
+
+For additional tests for passing parameters to module lkm_parameters run the Makefile target
+test-parameter with ```make test-parameters```. This will load/unload the module and compare
+the parameters number and message passed when loading the module with the values read in the
+/sys filesystem (/sys/module/lkm_parameters/parameters/*). Or run the following commands.
+```
+sudo insmod lkm_parameters.ko number=33 message=\"Some message...\"
+cat /sys/module/lkm_parameters/parameters/number
+cat /sys/module/lkm_parameters/parameters/message
+sudo rmmod lkm_parameters
 ```
 
 ## [Make](#make)
@@ -88,6 +99,7 @@ than operates in a sequential pattern."
 *"With kernel development, you’re writing APIs, not applications themselves."*
 
 ## [Links](#links)
+- Developers Area, [Kernel Module Parameters](https://devarea.com/linux-kernel-development-kernel-module-parameters/) by [Liran B.H](https://devarea.com/author/liran/)
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
 - Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
 - Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)

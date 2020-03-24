@@ -78,6 +78,25 @@ test-module:
 	@sudo rmmod ${filename}
 	@dmesg
 
+test-parameters:
+	$(eval module = lkm_parameters)
+	$(eval number = 22)
+	$(eval message = I am a Makefile)
+
+	$(info >> Testing module 'lkm_parameters' by loading and checking in /sys filesystem)
+	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+
+	$(eval filename = ${module}.ko)
+	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
+	@sudo insmod $(filename) number=$(number) message=\"$(message)\"
+	@test "`cat /sys/module/$(module)/parameters/number`" -eq $(number) \
+		|| (echo "!! The parameter 'number' is unequal $(number)."; exit 3) \
+		&& echo "Passed parameter 'number' is equal to $(number)."
+	@test "\"`cat /sys/module/$(module)/parameters/message`\"" = "\"$(message)\"" \
+		|| (echo "!! The parameter 'message' is unequal $(message)."; exit 3) \
+		&& echo "Passed parameter 'message' is equal to $(message)."
+	@sudo rmmod $(filename)
+
 test-proc:
 	$(eval proc_module = lkm_proc)
 	$(eval proc_file = /proc/$(proc_module))

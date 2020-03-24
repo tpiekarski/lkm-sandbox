@@ -39,7 +39,7 @@ MODULE_DESCRIPTION("Module for passing parameters from user- to kernelspace.");
 MODULE_VERSION("0.1");
 
 // Definitions
-#define DEFAULT_PERMISSIONS 0660
+#define DEFAULT_PERMISSIONS 0664
 
 // Global variables
 static int number = 42;

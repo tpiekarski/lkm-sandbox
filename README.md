@@ -31,7 +31,9 @@ make test-module name=lkm_skeleton
 Additional tests for the sandbox device including loading module, gathering major device number from /proc, creating device and comparing 
 the final message either run the Makefile target with ```make test-device``` or run the following commands. 
 For creating character device the major number is needed and can be obtained by catting the file /proc/lkm_device_major. 
-This major number is written to the Kernel Ring Buffer as well.
+This major number is written to the Kernel Ring Buffer as well. It is possible to provide this major number using the module parameter
+param_major_num and load this module like ```sudo insmod lkm_device.ko param_major_num=241``` (At this moment this static allocation seems 
+not to work reliable. The registration of the sandbox device fails sometimes. It was tried with a major of -16 when registration fails and the operation is not permitted like that - the reason is unknown.)
 ```
 sudo insmod lkm_device.ko
 dmesg | grep "Registered sandbox device"

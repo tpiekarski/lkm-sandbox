@@ -23,6 +23,7 @@ make test
 Testing by loading, unloading and outputing Kernel Ring Buffer (sudo will ask for root permissions).
 ```
 make test-module name=lkm_device
+make test-module name=lkm_parameters
 make test-module name=lkm_proc
 make test-module name=lkm_sandbox
 make test-module name=lkm_skeleton
@@ -56,9 +57,10 @@ sudo rmmod lkm_proc
 #|Module|Source|Description
 ---|---|---|---
 1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc filesystem
-2|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-3|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-4|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+2|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
+3|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+4|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+5|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
 
 ## [License](#license)
 LKM Sandbox is free software: you can redistribute it and/or modify

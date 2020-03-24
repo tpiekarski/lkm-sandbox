@@ -23,7 +23,7 @@
 
 SHELL:=/bin/bash
 
-obj-m += lkm_device.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_device.o lkm_parameters.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -34,6 +34,7 @@ clean:
 test:
 	$(info Running all available tests...)
 	@make test-module name=lkm_device
+	@make test-module name=lkm_parameters
 	@make test-module name=lkm_proc
 	@make test-module name=lkm_sandbox
 	@make test-module name=lkm_skeleton

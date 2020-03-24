@@ -10,5 +10,19 @@
         "**/*.o": true,
         "Module.symvers": true,
         "modules.order": true
-    }
+    },
+    "cSpell.words": [
+        "charp",
+        "dmesg",
+        "eniac",
+        "insmod",
+        "Kernelnewbies",
+        "kernelspace",
+        "Liran",
+        "llseek",
+        "loff",
+        "mknod",
+        "printk",
+        "rmmod"
+    ]
 }

@@ -31,6 +31,10 @@
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 
+// Additional Headers for /proc and sequential I/O
+#include <linux/proc_fs.h>
+#include <linux/seq_file.h>
+
 // Module Meta Data (For available license see include/linux/module.h)
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
@@ -38,27 +42,44 @@ MODULE_DESCRIPTION("A Sandbox device module for the Linux Kernel");
 MODULE_VERSION("0.1");
 
 // Prototypes
+static int device_init_sub(void);
+static int proc_init_sub(void);
 static int device_open(struct inode*, struct file*);
 static int device_release(struct inode*, struct file*);
 static ssize_t device_read(struct file*, char*, size_t, loff_t*);
 static ssize_t device_write(struct file*, const char*, size_t, loff_t*);
+static int proc_open(struct inode*, struct file*);
+static int proc_show(struct seq_file*, void*);
 
 // Definitions
 #define DEVICE_NAME "lkm_device"
 #define MESSAGE "Hello, Linux!\n"
 #define MESSAGE_BUFFER_LENGTH 15
+#define PROC_FILE_NAME "lkm_device_major"
+#define PROC_PARENT NULL // root of /proc fs
+#define PROC_PERMISSION 0444
 
-// Statics
+// Global Variables
 static int major_num;
 static int device_open_count = 0;
 static char message_buffer[MESSAGE_BUFFER_LENGTH];
 static char* message_ptr;
-static struct file_operations file_ops = {
+
+// Global Structures
+static struct file_operations device_fops = {
     .open    = device_open,
     .read    = device_read,
     .release = device_release,
     .write   = device_write
 };
+static struct file_operations proc_fops = {
+    .llseek = seq_lseek,
+    .open = proc_open,
+    .owner = THIS_MODULE,
+    .read = seq_read,
+    .release = single_release
+};
+struct proc_dir_entry *proc_major_entry;
 
 //
 // Device Operations
@@ -115,30 +136,76 @@ static int device_release(struct inode* inode, struct file* file) {
 }
 
 //
+// /proc I/O Operations
+//
+
+static int proc_open(struct inode* inode, struct file* file) {
+    return single_open(file, proc_show, NULL);
+}
+
+static int proc_show(struct seq_file* seq, void* v) {
+    seq_printf(seq, "%d", major_num);
+
+    return 0;
+}
+
+//
 // Module Init & Exit
 //
 
 static int __init lkm_device_init(void) {
     printk(KERN_INFO "Initialize Sandbox Device Module...\n");
 
-    strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
-    message_ptr = message_buffer;
-    major_num = register_chrdev(0, DEVICE_NAME, &file_ops);
-
-    if (major_num < 0) {
-        printk(KERN_ALERT "Could not register sandbox device: %d\n", major_num);
-
-        return major_num;
+    if (device_init_sub() < 0) {
+        return -1;
     }
 
-    printk(KERN_INFO "Registered sandbox device with major number %d\n", major_num);
+    if (proc_init_sub() < 0) {
+        return -2;
+    }
 
     return 0;
 }
 
 static void __exit lkm_device_exit(void) {
-    printk(KERN_INFO "Exiting Sandbox Device Module...\n");
+    printk(KERN_INFO "Exiting Sandbox Device Module (Unregistering device and removing proc entry).\n");
     unregister_chrdev(major_num, DEVICE_NAME);
+    remove_proc_entry(PROC_FILE_NAME, PROC_PARENT);
+}
+
+//
+// Module Sub Init for device and /proc
+//
+
+static int device_init_sub(void) {
+    printk(KERN_INFO "Registering character device to print test message.\n");
+
+    strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
+    message_ptr = message_buffer;
+    major_num = register_chrdev(0, DEVICE_NAME, &device_fops);
+
+    if (major_num < 0) {
+        printk(KERN_ALERT "Failed to register sandbox device (major %d).\n", major_num);
+
+        return -1;
+    }
+
+    return 0;
+}
+
+static int proc_init_sub(void) {
+    printk(KERN_INFO "Registered sandbox device with major number %d.\n", major_num);
+    
+    printk(KERN_INFO "Creating /proc file %s for storing major number %d.\n", PROC_FILE_NAME, major_num);
+    proc_major_entry = proc_create(PROC_FILE_NAME, PROC_PERMISSION, PROC_PARENT, &proc_fops);
+
+    if (proc_major_entry == NULL) {
+        printk(KERN_ALERT "Failed to create entry '%s' for device major in /proc.\n", PROC_FILE_NAME);
+
+        return -1;
+    }
+
+    return 0;
 }
 
 module_init(lkm_device_init);

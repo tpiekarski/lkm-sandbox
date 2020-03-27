@@ -37,7 +37,6 @@ MODULE_DESCRIPTION("Module for accesing the /proc filesystem");
 MODULE_VERSION("0.1");
 
 // Prototypes
-static int lkm_proc_open(struct inode *inode, struct file *file);
 static int lkm_proc_show(struct seq_file *seq, void *v);
 
 // Definitions
@@ -48,13 +47,6 @@ static int lkm_proc_show(struct seq_file *seq, void *v);
 
 // Global Structures
 struct proc_dir_entry *lkm_proc_entry;
-static const struct file_operations lkm_proc_fops = {
-    .llseek = seq_lseek,
-    .open = lkm_proc_open,
-    .owner = THIS_MODULE,
-    .read = seq_read,
-    .release = single_release
-};
 
 //
 // Module Init & Exit
@@ -62,7 +54,7 @@ static const struct file_operations lkm_proc_fops = {
 
 static int __init lkm_proc_init(void) {
     printk(KERN_INFO "Initializing module for accessing /proc/%s...\n", LKM_PROC_FILE_NAME);
-    lkm_proc_entry = proc_create(LKM_PROC_FILE_NAME, LKM_PROC_PERMISSION, LKM_PROC_PARENT, &lkm_proc_fops);
+    lkm_proc_entry = proc_create_single(LKM_PROC_FILE_NAME, LKM_PROC_PERMISSION, LKM_PROC_PARENT, lkm_proc_show);
 
     if (lkm_proc_entry == NULL) {
         printk(KERN_ALERT "Failed to create entry '%s' in /proc.", LKM_PROC_FILE_NAME);
@@ -75,10 +67,6 @@ static void __exit lkm_proc_exit(void) {
     printk(KERN_INFO "Removing /proc/%s...\n", LKM_PROC_FILE_NAME);
 
     remove_proc_entry(LKM_PROC_FILE_NAME, LKM_PROC_PARENT);
-}
-
-static int lkm_proc_open(struct inode *inode, struct file *file) {
-    return single_open(file, lkm_proc_show, NULL);
 }
 
 static int lkm_proc_show(struct seq_file *seq, void *v) {

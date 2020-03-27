@@ -42,7 +42,7 @@ static int lkm_proc_show(struct seq_file *seq, void *v);
 
 // Definitions
 #define LKM_PROC_FILE_NAME "lkm_proc"
-#define LKM_PROC_MESSAGE "Hello, /proc!\n"
+#define LKM_PROC_MESSAGE "Hello, /proc!"
 #define LKM_PROC_PARENT NULL // root of /proc
 #define LKM_PROC_PERMISSION 0444
 
@@ -82,7 +82,8 @@ static int lkm_proc_open(struct inode *inode, struct file *file) {
 }
 
 static int lkm_proc_show(struct seq_file *seq, void *v) {
-    seq_printf(seq, LKM_PROC_MESSAGE);
+    seq_puts(seq, LKM_PROC_MESSAGE);
+    seq_putc(seq, '\n');
 
     return 0;
 }

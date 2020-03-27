@@ -51,7 +51,6 @@ static int device_open(struct inode*, struct file*);
 static int device_release(struct inode*, struct file*);
 static ssize_t device_read(struct file*, char*, size_t, loff_t*);
 static ssize_t device_write(struct file*, const char*, size_t, loff_t*);
-static int proc_open(struct inode*, struct file*);
 static int proc_show(struct seq_file*, void*);
 
 // Definitions
@@ -76,13 +75,6 @@ static struct file_operations device_fops = {
     .read    = device_read,
     .release = device_release,
     .write   = device_write
-};
-static struct file_operations proc_fops = {
-    .llseek = seq_lseek,
-    .open = proc_open,
-    .owner = THIS_MODULE,
-    .read = seq_read,
-    .release = single_release
 };
 struct proc_dir_entry *proc_major_entry;
 
@@ -147,10 +139,6 @@ static int device_release(struct inode* inode, struct file* file) {
 // /proc I/O Operations
 //
 
-static int proc_open(struct inode* inode, struct file* file) {
-    return single_open(file, proc_show, NULL);
-}
-
 static int proc_show(struct seq_file* seq, void* v) {
     seq_printf(seq, "%d", major_num);
 
@@ -210,7 +198,7 @@ static int proc_init_sub(void) {
     printk(KERN_INFO "Registered sandbox device with major number %d.\n", major_num);
     
     printk(KERN_INFO "Creating /proc file %s for storing major number %d.\n", PROC_FILE_NAME, major_num);
-    proc_major_entry = proc_create(PROC_FILE_NAME, PROC_PERMISSION, PROC_PARENT, &proc_fops);
+    proc_major_entry = proc_create_single(PROC_FILE_NAME, PROC_PERMISSION, PROC_PARENT, proc_show);
 
     if (proc_major_entry == NULL) {
         printk(KERN_ALERT "Failed to create entry '%s' for device major in /proc.\n", PROC_FILE_NAME);

@@ -6,11 +6,16 @@ install: make
 os: linux
 sudo: required
 
+env:
+  global:
+    - MAKEFLAGS="-j $(nproc)"
+
 install:
   - sudo apt-get update
   - sudo apt-get install -y "linux-headers-$(uname -r)"
 
 script:
+  - echo $MAKEFLAGS
   - make license
   - make
   - make test

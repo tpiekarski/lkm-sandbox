@@ -15,3 +15,6 @@ script:
   - make
   - make test
   - make clean
+
+notifications:
+  email: false

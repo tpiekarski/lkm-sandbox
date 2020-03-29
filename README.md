@@ -1,12 +1,14 @@
-# Linux Kernel Module (LKM) Sandbox
+Linux Kernel Module (LKM) Sandbox
+---
+[![Build Status](https://travis-ci.org/tpiekarski/lkm-sandbox.svg?branch=master)](https://travis-ci.org/tpiekarski/lkm-sandbox)
 
 ## Overview
 [Building](#building) / [Testing](#testing) / [Make](#make) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
 
-The Linux Kernel Module Sandbox is a little module to learn, test and experiment with the development of Kernel Modules 
-for the Linux System. It won't be anything very usable and there won't be any new driver emerging from this sandbox 
-(at least it is not intended). That module is only for learning and study purpose and will contain also a few comments
-explaining things in the source code.
+The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment 
+with the development of Linux Kernel Modules. The purpose of this repository is also to practice development 
+within the Linux Kernel and study miscellaneous concepts before moving on to submit the very first patch 
+to the kernel. I hope it can be valuable for other developers which try to approach the Linux Kernel.
 
 ## [Building](#building)
 ```

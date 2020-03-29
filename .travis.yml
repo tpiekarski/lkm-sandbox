@@ -15,7 +15,6 @@ install:
   - sudo apt-get install -y "linux-headers-$(uname -r)"
 
 script:
-  - echo $MAKEFLAGS
   - make license
   - make
   - make test

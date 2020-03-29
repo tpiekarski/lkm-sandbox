@@ -1,0 +1,23 @@
+language: c
+
+compiler: gcc
+dist: bionic
+install: make
+os: linux
+sudo: required
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install -y "linux-headers-$(uname -r)"
+
+script:
+  - echo "--- Discovering build environment (curious what there will be around :)) ---"
+  - which -a uname env bash make gcc test echo sudo insmod rmmod mknod head rm dmesg cat
+  - uname -a
+  - env | sort
+  - test -d /proc && echo "/proc is around"
+  - test -d /dev && echo "/dev is around"
+  - echo "--- Running make ---"
+  - make
+  - echo "--- Running make test ---"
+  - make test

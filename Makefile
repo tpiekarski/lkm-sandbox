@@ -114,7 +114,7 @@ test-proc:
 	@sudo rmmod ${filename}
 
 license:
-	@echo " LKM Sandbox::Make\n\n \
+	@echo -e " LKM Sandbox::Make\n\n \
 	LKM Sandbox is free software: you can redistribute it and/or modify\n \
 	it under the terms of the GNU General Public License as published by\n \
 	the Free Software Foundation, either version 3 of the License, or\n \

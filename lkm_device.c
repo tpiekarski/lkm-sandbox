@@ -59,11 +59,11 @@ static int device_open_count = 0;
 static char message_buffer[MESSAGE_BUFFER_LENGTH];
 static char *message_ptr;
 
-static struct file_operations device_fops = { .open = device_open,
+static struct file_operations device_fops = { .owner = THIS_MODULE,
+					      .open = device_open,
 					      .read = device_read,
 					      .release = device_release,
 					      .write = device_write };
-struct proc_dir_entry *proc_major_entry;
 
 module_param(param_major_num, int, PARAM_MAJOR_NUM_PERMISSION);
 
@@ -182,6 +182,8 @@ static int device_init_sub(void)
 
 static int proc_init_sub(void)
 {
+	struct proc_dir_entry *proc_major_entry = NULL;
+
 	printk(KERN_INFO
 	       "lkm_device: Registered sandbox device with major number %d.\n",
 	       major_num);
@@ -189,6 +191,7 @@ static int proc_init_sub(void)
 	printk(KERN_INFO
 	       "lkm_device: Creating /proc file %s for storing major number %d.\n",
 	       PROC_FILE_NAME, major_num);
+
 	proc_major_entry = proc_create_single(PROC_FILE_NAME, PROC_PERMISSION,
 					      PROC_PARENT, proc_show);
 

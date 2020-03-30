@@ -39,13 +39,14 @@ static int lkm_proc_show(struct seq_file *seq, void *v);
 #define LKM_PROC_PARENT NULL // root of /proc
 #define LKM_PROC_PERMISSION 0444
 
-struct proc_dir_entry *lkm_proc_entry;
-
 static int __init lkm_proc_init(void)
 {
+	struct proc_dir_entry *lkm_proc_entry = NULL;
+
 	printk(KERN_INFO
 	       "lkm_proc: Initializing module for accessing /proc/%s.\n",
 	       LKM_PROC_FILE_NAME);
+
 	lkm_proc_entry =
 		proc_create_single(LKM_PROC_FILE_NAME, LKM_PROC_PERMISSION,
 				   LKM_PROC_PARENT, lkm_proc_show);
@@ -61,8 +62,7 @@ static int __init lkm_proc_init(void)
 
 static void __exit lkm_proc_exit(void)
 {
-	printk(KERN_INFO "lkm_proc: Removing /proc/%s.\n",
-	       LKM_PROC_FILE_NAME);
+	printk(KERN_INFO "lkm_proc: Removing /proc/%s.\n", LKM_PROC_FILE_NAME);
 
 	remove_proc_entry(LKM_PROC_FILE_NAME, LKM_PROC_PARENT);
 }

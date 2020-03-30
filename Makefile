@@ -23,6 +23,8 @@
 
 SHELL:=/bin/bash
 
+ccflags-y := -Wall
+
 obj-m += lkm_device.o lkm_parameters.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:

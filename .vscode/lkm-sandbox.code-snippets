@@ -1,22 +1,25 @@
 {
 	"File Operations": {
 		"scope": "c,h",
-		"prefix": ["fops"],
+		"prefix": [
+			"fops"
+		],
 		"body": [
 			"static struct file_operations ${1:${TM_FILENAME_BASE}_fops} = {",
-				"\t.open    = ${2:${TM_FILENAME_BASE}_open},",
-				"\t.read    = ${3:${TM_FILENAME_BASE}_read},",
-				"\t.release = ${4:${TM_FILENAME_BASE}_release},",
-				"\t.write   = ${5:${TM_FILENAME_BASE}_write}",
+			"\t.open = ${2:${TM_FILENAME_BASE}_open},",
+			"\t.read = ${3:${TM_FILENAME_BASE}_read},",
+			"\t.release = ${4:${TM_FILENAME_BASE}_release},",
+			"\t.write = ${5:${TM_FILENAME_BASE}_write}",
 			"};",
 			"\n$0"
 		],
 		"description": "Structure for file operations"
 	},
-
 	"Kernel Module Meta": {
 		"scope": "c",
-		"prefix": ["meta"],
+		"prefix": [
+			"meta"
+		],
 		"body": [
 			"MODULE_LICENSE(\"${1:GPL}\");",
 			"MODULE_AUTHOR(\"$2\");",
@@ -26,10 +29,12 @@
 		],
 		"description": "Meta information for new modules"
 	},
-
 	"Kernel Module Skeleton": {
 		"scope": "c",
-		"prefix": ["mod", "module"],
+		"prefix": [
+			"mod",
+			"module"
+		],
 		"body": [
 			"/*",
 			" * LKM Sandbox::${TM_FILENAME_BASE}",
@@ -60,12 +65,14 @@
 			"MODULE_AUTHOR(\"$1\");",
 			"MODULE_DESCRIPTION(\"$2\");",
 			"MODULE_VERSION(\"${3:0.1}\");\n",
-			"static int __init lkm_${TM_FILENAME_BASE}_init(void) {",
+			"static int __init lkm_${TM_FILENAME_BASE}_init(void)",
+			"{",
 			"\t// todo: implement init function",
 			"\n\t$0\n",
 			"\treturn 0;",
 			"}\n",
-			"static void __exit lkm_${TM_FILENAME_BASE}_exit(void) {",
+			"static void __exit lkm_${TM_FILENAME_BASE}_exit(void)",
+			"{",
 			"\t// todo: implement exit function",
 			"}\n",
 			"module_init(lkm_${TM_FILENAME_BASE}_init);",
@@ -73,10 +80,12 @@
 		],
 		"description": "Basic skeleton for new modules"
 	},
-
 	"License": {
 		"scope": "c,h",
-		"prefix": ["gpl", "gplv2"],
+		"prefix": [
+			"gpl",
+			"gplv2"
+		],
 		"body": [
 			"/*",
 			" * LKM Sandbox::${TM_FILENAME_BASE}",
@@ -100,16 +109,17 @@
 			" * along with LKM Sandbox. If not, see <https://www.gnu.org/licenses/>.",
 			" * ",
 			" */\n",
-			"\n$0"
+			"$0"
 		],
 		"description": "GPLv2 License header"
 	},
-
 	"Printing to Kernel Ring Buffer": {
 		"scope": "c",
-		"prefix": ["p", "print"],
+		"prefix": [
+			"p",
+			"print"
+		],
 		"body": "printk(${1|KERN_DEBUG,KERN_INFO,KERN_NOTICE,KERN_WARNING,KERN_ERR,KERN_CRIT,KERN_ALERT,KERN_EMERG|} \"${TM_FILENAME_BASE}: $0\");",
 		"description": "Printing values to the Kernel Ring Buffer with printk"
 	},
-
 }

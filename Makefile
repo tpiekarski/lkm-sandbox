@@ -25,7 +25,7 @@ SHELL:=/bin/bash
 
 ccflags-y := -Wall
 
-obj-m += lkm_device.o lkm_parameters.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -36,13 +36,36 @@ clean:
 test:
 	$(info Running all available tests)
 	@$(MAKE) test-module name=lkm_device
+	@$(MAKE) test-module name=lkm_mem
 	@$(MAKE) test-module name=lkm_parameters
 	@$(MAKE) test-module name=lkm_proc
 	@$(MAKE) test-module name=lkm_sandbox
 	@$(MAKE) test-module name=lkm_skeleton
 	@$(MAKE) test-device
+	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
+
+#
+# Generic targets for load/dmesg/unload module tests
+#
+
+test-module:
+	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	
+	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
+	$(eval filename = ${name}.ko)
+	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
+	
+	@sudo dmesg --clear
+	@sudo insmod ${filename}
+	@sudo rmmod ${filename}
+	@dmesg
+
+#
+# Targets for additional concept-based module tests
+#
 
 test-device:
 	$(info >> Additional testing module 'lkm_device' by loading, accessing major device number in /proc and creating device)
@@ -68,18 +91,23 @@ test-device:
 	@sudo rm $(device_filename)
 	@sudo rmmod $(module_filename)
 
+<<<<<<< HEAD
 test-module:
 	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer)
+=======
+test-memory:
+	$(info >> Testing module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
+>>>>>>> Updating Makefile for new lkm_mem module and rewriting/updating a little bit README.md
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
-	
-	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
-	$(eval filename = ${name}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	
-	@sudo dmesg --clear
-	@sudo insmod ${filename}
-	@sudo rmmod ${filename}
-	@dmesg
+
+	$(eval module_filename = lkm_mem.ko)
+	$(eval mem_proc_file = /proc/lkm/mem)
+	$(eval swap_proc_file = /proc/lkm/swap)
+
+	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 2)
+	@(echo "@todo: implement further tests, forcing failure with exit... do not forget to write some tests :)"; exit 2)
+
+
 
 test-parameters:
 	$(eval module = lkm_parameters)
@@ -114,6 +142,10 @@ test-proc:
 	@test -f $(proc_file) && echo ">> The file $(proc_file) exists." || (echo "!! The file $(proc_file) does not exists."; exit 3)
 	@cat $(proc_file)
 	@sudo rmmod ${filename}
+
+#
+# Miscellaneous targets
+# 
 
 license:
 	@echo -e " LKM Sandbox::Make\n\n \

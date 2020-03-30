@@ -5,10 +5,16 @@ Linux Kernel Module (LKM) Sandbox
 ## Overview
 [Building](#building) / [Testing](#testing) / [Make](#make) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
 
-The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment 
-with the development of Linux Kernel Modules. The purpose of this repository is also to practice development 
-within the Linux Kernel and study miscellaneous concepts before moving on to submit the very first patch 
-to the kernel. I hope it can be valuable for other developers which try to approach the Linux Kernel.
+The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
+the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
+the Linux Kernel and study miscellaneous concepts before moving on to submit the very first patch to the kernel.
+
+Most of the modules illustrate one concept and shows how to use the Kernel API. A few of the modules combine more
+than one concept to present concepts working together. For example the module *[lkm_device](lkm_device.c)* is 
+accessing a character device and storing its major number in /proc and the module *[lkm_mem](lkm_mem.c)* is 
+exposing memory/swap information by files in /proc. 
+
+I hope it can be valuable for other developers which try to approach the Linux Kernel.
 
 ## [Building](#building)
 ```
@@ -16,7 +22,7 @@ make clean && make
 ```
 
 ## [Testing](#testing)
-To run all available tests, including basic loading/unloading and both additional tests for device and /proc.
+To run all available tests, including basic loading/unloading and all additional concept tests..
 ```
 make test
 ```
@@ -24,18 +30,22 @@ make test
 Testing by loading, unloading and outputting Kernel Ring Buffer (sudo will ask for root permissions).
 ```
 make test-module name=lkm_device
+make test-module name=lkm_mem
 make test-module name=lkm_parameters
 make test-module name=lkm_proc
 make test-module name=lkm_sandbox
 make test-module name=lkm_skeleton
 ```
 
-Additional tests for the sandbox device including loading module, gathering major device number from /proc, creating device and comparing 
-the final message either run the Makefile target with ```make test-device``` or run the following commands. 
+Additional tests for the sandbox device including loading module, gathering major device number from /proc,
+creating device and comparing the final message either run the Makefile target with ```make test-device```
+or run the following commands. 
+
 For creating character device the major number is needed and can be obtained by catting the file /proc/lkm_device_major. 
-This major number is written to the Kernel Ring Buffer as well. It is possible to provide this major number using the module parameter
-param_major_num and load this module like ```sudo insmod lkm_device.ko param_major_num=241``` (At this moment this static allocation seems 
-not to work reliable. The registration of the sandbox device fails sometimes. It was tried with a major of -16 when registration fails and the operation is not permitted like that - the reason is unknown.)
+This major number is written to the Kernel Ring Buffer as well. It is possible to provide this major number using the 
+module parameter param_major_num and load this module like ```sudo insmod lkm_device.ko param_major_num=241``` 
+(At this moment this static allocation seems not to work reliable. The registration of the sandbox device fails sometimes. 
+It was tried with a major of -16 when registration fails and the operation is not permitted like that - the reason is unknown.)
 ```
 sudo insmod lkm_device.ko
 dmesg | grep "Registered sandbox device"
@@ -63,18 +73,18 @@ cat /sys/module/lkm_parameters/parameters/message
 sudo rmmod lkm_parameters
 ```
 
-## [Make](#make)
-![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
-
-
 ## [Modules](#modules)
 #|Module|Source|Description
 ---|---|---|---
-1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc filesystem
-2|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
-3|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-4|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-5|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
+2|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
+3|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
+4|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+5|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+6|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+
+## [Make](#make)
+![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
 
 ## [License](#license)
 LKM Sandbox is free software: you can redistribute it and/or modify

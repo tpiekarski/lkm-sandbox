@@ -43,7 +43,7 @@ struct proc_dir_entry *lkm_proc_parent;
 struct proc_dir_entry *mem_proc_parent;
 struct proc_dir_entry *mem_proc_total_entry;
 
-static int lkm_mem_show(struct seq_file *seq, void *v);
+static int lkm_value_show(struct seq_file *seq, void *v);
 
 static int __init lkm_mem_init(void) {
     lkm_proc_parent = proc_mkdir(LKM_PROC_PARENT, NULL);
@@ -62,15 +62,15 @@ static int __init lkm_mem_init(void) {
         return 1;
     }
 
-    mem_proc_total_entry = proc_create_single(LKM_MEM_PROC_TOTAL_ENTRY, LKM_PROC_PERMISSION, mem_proc_parent, lkm_mem_show);
+    si_meminfo(&si);
+
+    mem_proc_total_entry = proc_create_single_data(LKM_MEM_PROC_TOTAL_ENTRY, LKM_PROC_PERMISSION, mem_proc_parent, lkm_value_show, &si.totalram);
 
     if (mem_proc_total_entry == NULL) {
         printk(KERN_ERR "lkm_mem: Failed to create entry /proc/%s/%s/%s", LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, LKM_MEM_PROC_TOTAL_ENTRY);
 
         return 1;
     } 
-
-    si_meminfo(&si);
 
     return 0;
 }
@@ -89,8 +89,8 @@ static void __exit lkm_mem_exit(void) {
     }
 }
 
-static int lkm_mem_show(struct seq_file *seq, void *v) {
-    seq_put_decimal_ull(seq, "", si.totalram);
+static int lkm_value_show(struct seq_file *seq, void *v) {
+    seq_put_decimal_ull(seq, "", *(unsigned long*)seq->private);
     seq_putc(seq, '\n');
 
     return 0;

@@ -37,11 +37,13 @@ MODULE_VERSION("0.1");
 
 static int device_init_sub(void);
 static int proc_init_sub(void);
-static int device_open(struct inode*, struct file*);
-static int device_release(struct inode*, struct file*);
-static ssize_t device_read(struct file*, char*, size_t, loff_t*);
-static ssize_t device_write(struct file*, const char*, size_t, loff_t*);
-static int proc_show(struct seq_file*, void*);
+static int device_open(struct inode *inode, struct file *file);
+static int device_release(struct inode *inode, struct file *file);
+static ssize_t device_read(struct file *flip, char *buffer, size_t len,
+			   loff_t *offset);
+static ssize_t device_write(struct file *flip, const char *buffer, size_t len,
+			    loff_t *offset);
+static int proc_show(struct seq_file *seq, void *v);
 
 #define DEVICE_NAME "lkm_device"
 #define MESSAGE "Hello, Linux!\n"
@@ -55,31 +57,29 @@ static int major_num;
 static int param_major_num = 0;
 static int device_open_count = 0;
 static char message_buffer[MESSAGE_BUFFER_LENGTH];
-static char* message_ptr;
+static char *message_ptr;
 
-static struct file_operations device_fops = {
-	.open	= device_open,
-	.read	= device_read,
-	.release = device_release,
-	.write   = device_write
-};
+static struct file_operations device_fops = { .open = device_open,
+					      .read = device_read,
+					      .release = device_release,
+					      .write = device_write };
 struct proc_dir_entry *proc_major_entry;
 
 module_param(param_major_num, int, PARAM_MAJOR_NUM_PERMISSION);
 
-static ssize_t device_read(struct file* flip, char* buffer, 
-			   size_t len, loff_t* offset)
+static ssize_t device_read(struct file *flip, char *buffer, size_t len,
+			   loff_t *offset)
 {
 	int bytes_read = 0;
 	printk(KERN_INFO "Starting to read from sandbox device.\n");
-	
+
 	if (*message_ptr == 0)
 		message_ptr = message_buffer;
 
 	while (len && *message_ptr) {
 		printk(KERN_INFO "Reading from device...\n");
 		if (put_user(*(message_ptr++), buffer++) == -EFAULT) {
-			printk(KERN_ALERT 
+			printk(KERN_ALERT
 			       "Failed copying message from kernel to user space.\n");
 
 			break;
@@ -92,15 +92,15 @@ static ssize_t device_read(struct file* flip, char* buffer,
 	return bytes_read;
 }
 
-static ssize_t device_write(struct file* flip, const char* buffer, 
-			    size_t len, loff_t *offset)
+static ssize_t device_write(struct file *flip, const char *buffer, size_t len,
+			    loff_t *offset)
 {
 	printk(KERN_ALERT "Writing to sandbox device is not supported.\n");
 
 	return -EINVAL;
 }
 
-static int device_open(struct inode* inode, struct file* file)
+static int device_open(struct inode *inode, struct file *file)
 {
 	if (device_open_count > 0) {
 		printk(KERN_INFO "Sandbox device already open.\n");
@@ -114,7 +114,7 @@ static int device_open(struct inode* inode, struct file* file)
 	return 0;
 }
 
-static int device_release(struct inode* inode, struct file* file)
+static int device_release(struct inode *inode, struct file *file)
 {
 	printk(KERN_INFO "Closing sandbox device.\n");
 	device_open_count--;
@@ -123,7 +123,7 @@ static int device_release(struct inode* inode, struct file* file)
 	return 0;
 }
 
-static int proc_show(struct seq_file* seq, void* v)
+static int proc_show(struct seq_file *seq, void *v)
 {
 	seq_printf(seq, "%d", major_num);
 
@@ -154,23 +154,24 @@ static void __exit lkm_device_exit(void)
 
 static int device_init_sub(void)
 {
-	printk(KERN_INFO "Registering character device to print test message.\n");
+	printk(KERN_INFO
+	       "Registering character device to print test message.\n");
 
 	strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
 	message_ptr = message_buffer;
 
 	if (param_major_num != 0) {
-		printk(KERN_INFO 
-			"Failed allocating %d as major for sandbox device.\n", 
-			param_major_num);
+		printk(KERN_INFO
+		       "Failed allocating %d as major for sandbox device.\n",
+		       param_major_num);
 	}
 
 	major_num = register_chrdev(param_major_num, DEVICE_NAME, &device_fops);
 
 	if (major_num < 0) {
-		printk(KERN_ALERT 
-			"Failed to register sandbox device with major %d.\n", 
-			major_num);
+		printk(KERN_ALERT
+		       "Failed to register sandbox device with major %d.\n",
+		       major_num);
 
 		return -1;
 	}
@@ -180,17 +181,18 @@ static int device_init_sub(void)
 
 static int proc_init_sub(void)
 {
-	printk(KERN_INFO "Registered sandbox device with major number %d.\n", 
+	printk(KERN_INFO "Registered sandbox device with major number %d.\n",
 	       major_num);
 
-	printk(KERN_INFO "Creating /proc file %s for storing major number %d.\n", 
+	printk(KERN_INFO
+	       "Creating /proc file %s for storing major number %d.\n",
 	       PROC_FILE_NAME, major_num);
-	proc_major_entry = proc_create_single(PROC_FILE_NAME, PROC_PERMISSION, 
+	proc_major_entry = proc_create_single(PROC_FILE_NAME, PROC_PERMISSION,
 					      PROC_PARENT, proc_show);
 
 	if (proc_major_entry == NULL) {
-		printk(KERN_ALERT 
-		       "Failed to create /proc entry '%s' for device major.\n", 
+		printk(KERN_ALERT
+		       "Failed to create /proc entry '%s' for device major.\n",
 		       PROC_FILE_NAME);
 
 		return -1;

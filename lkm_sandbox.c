@@ -32,14 +32,15 @@ MODULE_VERSION("0.1");
 
 static int __init lkm_sandbox_init(void)
 {
-	printk(KERN_INFO "Initializing and entering the sandbox...\n");
+	printk(KERN_INFO
+	       "lkm_sandbox: Initializing and entering the sandbox.\n");
 
 	return 0;
 }
 
 static void __exit lkm_sandbox_exit(void)
 {
-	printk(KERN_INFO "Exiting the sandbox...\n");
+	printk(KERN_INFO "lkm_sandbox: Exiting the sandbox.\n");
 }
 
 module_init(lkm_sandbox_init);

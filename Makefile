@@ -32,7 +32,7 @@ clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 test:
-	$(info Running all available tests...)
+	$(info Running all available tests)
 	@$(MAKE) test-module name=lkm_device
 	@$(MAKE) test-module name=lkm_parameters
 	@$(MAKE) test-module name=lkm_proc
@@ -67,7 +67,7 @@ test-device:
 	@sudo rmmod $(module_filename)
 
 test-module:
-	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer)
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 	
 	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)

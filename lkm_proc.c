@@ -43,14 +43,16 @@ struct proc_dir_entry *lkm_proc_entry;
 
 static int __init lkm_proc_init(void)
 {
-	printk(KERN_INFO "Initializing module for accessing /proc/%s...\n",
+	printk(KERN_INFO
+	       "lkm_proc: Initializing module for accessing /proc/%s.\n",
 	       LKM_PROC_FILE_NAME);
 	lkm_proc_entry =
 		proc_create_single(LKM_PROC_FILE_NAME, LKM_PROC_PERMISSION,
 				   LKM_PROC_PARENT, lkm_proc_show);
 
 	if (lkm_proc_entry == NULL) {
-		printk(KERN_ALERT "Failed to create entry '%s' in /proc.",
+		printk(KERN_ALERT
+		       "lkm_proc: Failed to create entry '%s' in /proc.\n",
 		       LKM_PROC_FILE_NAME);
 	}
 
@@ -59,7 +61,8 @@ static int __init lkm_proc_init(void)
 
 static void __exit lkm_proc_exit(void)
 {
-	printk(KERN_INFO "Removing /proc/%s...\n", LKM_PROC_FILE_NAME);
+	printk(KERN_INFO "lkm_proc: Removing /proc/%s.\n",
+	       LKM_PROC_FILE_NAME);
 
 	remove_proc_entry(LKM_PROC_FILE_NAME, LKM_PROC_PARENT);
 }

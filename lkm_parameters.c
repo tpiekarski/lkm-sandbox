@@ -42,17 +42,18 @@ module_param(message, charp, DEFAULT_PERMISSIONS);
 
 static int __init lkm_parameters_init(void)
 {
-	printk(KERN_INFO "Initializing Sandbox Parameters Module...\n");
+	printk(KERN_INFO
+	       "lkm_parameters: Initializing Sandbox Parameters Module.\n");
 
 	if (number == 42 && strcmp(message, "That's a parameter.") == 0) {
 		printk(KERN_INFO
-		       "Module was loaded with default parameters.\n");
+		       "lkm_parameters: Module was loaded with default parameters.\n");
 
 		return 0;
 	}
 
 	printk(KERN_INFO
-	       "Module was loaded with number = %d and message = %s\n",
+	       "lkm_parameters: Module was loaded with number = %d and message = %s.\n",
 	       number, message);
 
 	return 0;
@@ -60,7 +61,7 @@ static int __init lkm_parameters_init(void)
 
 static void __exit lkm_parameters_exit(void)
 {
-	// nothing todo here...
+	// nothing todo here
 }
 
 module_init(lkm_parameters_init);

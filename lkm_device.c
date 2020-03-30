@@ -71,16 +71,16 @@ static ssize_t device_read(struct file *flip, char *buffer, size_t len,
 			   loff_t *offset)
 {
 	int bytes_read = 0;
-	printk(KERN_INFO "Starting to read from sandbox device.\n");
+	printk(KERN_INFO "lkm_device: Starting to read from sandbox device.\n");
 
 	if (*message_ptr == 0)
 		message_ptr = message_buffer;
 
 	while (len && *message_ptr) {
-		printk(KERN_INFO "Reading from device...\n");
+		printk(KERN_INFO "lkm_device: Reading from device.\n");
 		if (put_user(*(message_ptr++), buffer++) == -EFAULT) {
 			printk(KERN_ALERT
-			       "Failed copying message from kernel to user space.\n");
+			       "lkm_device: Failed copying message from kernel to user space.\n");
 
 			break;
 		}
@@ -95,7 +95,8 @@ static ssize_t device_read(struct file *flip, char *buffer, size_t len,
 static ssize_t device_write(struct file *flip, const char *buffer, size_t len,
 			    loff_t *offset)
 {
-	printk(KERN_ALERT "Writing to sandbox device is not supported.\n");
+	printk(KERN_ALERT
+	       "lkm_device: Writing to sandbox device is not supported.\n");
 
 	return -EINVAL;
 }
@@ -103,11 +104,11 @@ static ssize_t device_write(struct file *flip, const char *buffer, size_t len,
 static int device_open(struct inode *inode, struct file *file)
 {
 	if (device_open_count > 0) {
-		printk(KERN_INFO "Sandbox device already open.\n");
+		printk(KERN_INFO "lkm_device: Sandbox device already open.\n");
 		return -EBUSY;
 	}
 
-	printk(KERN_INFO "Opening sandbox device.\n");
+	printk(KERN_INFO "lkm_device: Opening sandbox device.\n");
 	device_open_count++;
 	try_module_get(THIS_MODULE);
 
@@ -116,7 +117,7 @@ static int device_open(struct inode *inode, struct file *file)
 
 static int device_release(struct inode *inode, struct file *file)
 {
-	printk(KERN_INFO "Closing sandbox device.\n");
+	printk(KERN_INFO "lkm_device: Closing sandbox device.\n");
 	device_open_count--;
 	module_put(THIS_MODULE);
 
@@ -132,7 +133,7 @@ static int proc_show(struct seq_file *seq, void *v)
 
 static int __init lkm_device_init(void)
 {
-	printk(KERN_INFO "Initialize Sandbox Device Module...\n");
+	printk(KERN_INFO "lkm_device: Initialize Sandbox Device Module.\n");
 
 	if (device_init_sub() < 0) {
 		return -1;
@@ -147,7 +148,7 @@ static int __init lkm_device_init(void)
 
 static void __exit lkm_device_exit(void)
 {
-	printk(KERN_INFO "Exiting Sandbox Device Module.\n");
+	printk(KERN_INFO "lkm_device: Exiting Sandbox Device Module.\n");
 	unregister_chrdev(major_num, DEVICE_NAME);
 	remove_proc_entry(PROC_FILE_NAME, PROC_PARENT);
 }
@@ -155,14 +156,14 @@ static void __exit lkm_device_exit(void)
 static int device_init_sub(void)
 {
 	printk(KERN_INFO
-	       "Registering character device to print test message.\n");
+	       "lkm_device: Registering character device to print test message.\n");
 
 	strncpy(message_buffer, MESSAGE, MESSAGE_BUFFER_LENGTH);
 	message_ptr = message_buffer;
 
 	if (param_major_num != 0) {
 		printk(KERN_INFO
-		       "Failed allocating %d as major for sandbox device.\n",
+		       "lkm_device: Failed allocating %d as major for sandbox device.\n",
 		       param_major_num);
 	}
 
@@ -170,7 +171,7 @@ static int device_init_sub(void)
 
 	if (major_num < 0) {
 		printk(KERN_ALERT
-		       "Failed to register sandbox device with major %d.\n",
+		       "lkm_device: Failed to register sandbox device with major %d.\n",
 		       major_num);
 
 		return -1;
@@ -181,18 +182,19 @@ static int device_init_sub(void)
 
 static int proc_init_sub(void)
 {
-	printk(KERN_INFO "Registered sandbox device with major number %d.\n",
+	printk(KERN_INFO
+	       "lkm_device: Registered sandbox device with major number %d.\n",
 	       major_num);
 
 	printk(KERN_INFO
-	       "Creating /proc file %s for storing major number %d.\n",
+	       "lkm_device: Creating /proc file %s for storing major number %d.\n",
 	       PROC_FILE_NAME, major_num);
 	proc_major_entry = proc_create_single(PROC_FILE_NAME, PROC_PERMISSION,
 					      PROC_PARENT, proc_show);
 
 	if (proc_major_entry == NULL) {
 		printk(KERN_ALERT
-		       "Failed to create /proc entry '%s' for device major.\n",
+		       "lkm_device: Failed to create /proc entry '%s' for device major.\n",
 		       PROC_FILE_NAME);
 
 		return -1;

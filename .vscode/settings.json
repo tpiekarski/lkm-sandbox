@@ -1,6 +1,11 @@
 {
+    "[c]": {
+        "editor.detectIndentation": false,
+        "editor.tabSize": 8,
+        "editor.insertSpaces": false,
+        "editor.rulers": [80]
+    },
     "C_Cpp.errorSquiggles": "Disabled",
-
     "files.exclude": {
         "**/.git": true,
         "**/*.cmd": true,

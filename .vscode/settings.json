@@ -1,11 +1,16 @@
 {
     "[c]": {
         "editor.detectIndentation": false,
-        "editor.tabSize": 8,
         "editor.insertSpaces": false,
-        "editor.rulers": [80]
+        "editor.rulers": [
+            80,
+            100
+        ],
+        "editor.tabSize": 8
     },
+    "C_Cpp.clang_format_sortIncludes": true,
     "C_Cpp.errorSquiggles": "Disabled",
+    "editor.formatOnSave": true,
     "files.exclude": {
         "**/.git": true,
         "**/*.cmd": true,
@@ -16,18 +21,5 @@
         "Module.symvers": true,
         "modules.order": true
     },
-    "cSpell.words": [
-        "charp",
-        "dmesg",
-        "eniac",
-        "insmod",
-        "Kernelnewbies",
-        "kernelspace",
-        "Liran",
-        "llseek",
-        "loff",
-        "mknod",
-        "printk",
-        "rmmod"
-    ]
+    "files.insertFinalNewline": true,
 }

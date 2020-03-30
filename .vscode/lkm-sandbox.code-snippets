@@ -1,0 +1,52 @@
+{
+	"File Operations": {
+		"scope": "c",
+		"prefix": ["fops"],
+		"body": [
+			"multi-line body..."
+		],
+		"description": "Structure for file operations"
+	},
+
+	"Kernel Module Meta": {
+		"scope": "c",
+		"prefix": ["meta"],
+		"body": [
+			"multi-line body..."
+		],
+		"description": "Meta information for new modules"
+	},
+
+	"Kernel Module Parameter": {
+		"scope": "c",
+		"prefix": ["modparam"],
+		"body": "single-line body...",
+		"description": "Parameter for modules"
+	},
+
+	"Kernel Module Skeleton": {
+		"scope": "c",
+		"prefix": ["mod", "module"],
+		"body": [
+			"multi-line body..."
+		],
+		"description": "Basic skeleton for new modules"
+	},
+
+	"License": {
+		"scope": "c",
+		"prefix": ["license", "gpl"],
+		"body": [
+			"multi-line body..."
+		],
+		"description": "License header"
+	},
+
+	"Printing": {
+		"scope": "c",
+		"prefix": ["print"],
+		"body": "single line body",
+		"description": "Printing values to the Kernel Ring Buffer with printk"
+	}
+	
+}

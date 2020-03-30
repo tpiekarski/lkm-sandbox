@@ -102,12 +102,16 @@ test-memory:
 
 	$(eval module_filename = lkm_mem.ko)
 	$(eval mem_proc_file = /proc/lkm/mem)
-	$(eval swap_proc_file = /proc/lkm/swap)
 
-	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 2)
-	@(echo "@todo: implement further tests, forcing failure with exit... do not forget to write some tests :)"; exit 2)
-
-
+	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 1)
+	@sudo insmod $(module_filename)
+	@test -f $(mem_proc_file) \
+		|| (echo "!! The /proc file $(module_filename) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(mem_proc_file)."
+	@test `cat $(mem_proc_file)` -gt 0 \
+		|| (echo "!! The memory read from $(mem_proc_file) is `cat $(mem_proc_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The memory read from $(mem_proc_file) is `cat $(mem_proc_file)` and looks okay."
+	@sudo rmmod $(module_filename)
 
 test-parameters:
 	$(eval module = lkm_parameters)

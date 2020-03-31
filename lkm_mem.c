@@ -48,6 +48,8 @@ struct proc_dir_entry *mem_proc_free_entry;
 static int lkm_value_show(struct seq_file *seq, void *v);
 void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 				 unsigned long *value, const char *name);
+void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
+			   struct proc_dir_entry *parent);
 
 static int __init lkm_mem_init(void)
 {
@@ -73,19 +75,8 @@ static int __init lkm_mem_init(void)
 
 	si_meminfo(&si);
 
-	mem_proc_total_entry =
-		proc_create_single_data(LKM_MEM_PROC_TOTAL_ENTRY,
-					LKM_PROC_PERMISSION, mem_proc_parent,
-					lkm_value_show, &si.totalram);
-
-	if (mem_proc_total_entry == NULL) {
-		printk(KERN_ERR
-		       "lkm_mem: Failed to create entry /proc/%s/%s/%s.\n",
-		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT,
-		       LKM_MEM_PROC_TOTAL_ENTRY);
-
-		return 1;
-	}
+	lkm_proc_create_single_data(mem_proc_total_entry, &si.totalram,
+				    LKM_MEM_PROC_TOTAL_ENTRY);
 
 	lkm_proc_create_single_data(mem_proc_free_entry, &si.freeram,
 				    LKM_MEM_PROC_FREE_ENTRY);
@@ -95,21 +86,16 @@ static int __init lkm_mem_init(void)
 
 static void __exit lkm_mem_exit(void)
 {
-	if (mem_proc_total_entry != NULL) {
-		remove_proc_entry(LKM_MEM_PROC_TOTAL_ENTRY, mem_proc_parent);
-	}
+	lkm_remove_proc_entry(mem_proc_total_entry, LKM_MEM_PROC_TOTAL_ENTRY,
+			      mem_proc_parent);
 
-	if (mem_proc_free_entry != NULL) {
-		remove_proc_entry(LKM_MEM_PROC_FREE_ENTRY, mem_proc_parent);
-	}
+	lkm_remove_proc_entry(mem_proc_free_entry, LKM_MEM_PROC_FREE_ENTRY,
+			      mem_proc_parent);
 
-	if (mem_proc_parent != NULL) {
-		remove_proc_entry(LKM_MEM_PROC_PARENT, lkm_proc_parent);
-	}
+	lkm_remove_proc_entry(mem_proc_parent, LKM_MEM_PROC_PARENT,
+			      lkm_proc_parent);
 
-	if (lkm_proc_parent != NULL) {
-		remove_proc_entry(LKM_PROC_PARENT, NULL);
-	}
+	lkm_remove_proc_entry(lkm_proc_parent, LKM_PROC_PARENT, NULL);
 }
 
 static int lkm_value_show(struct seq_file *seq, void *v)
@@ -134,6 +120,15 @@ void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 		// ifs in calling function all over the place? Loading of
 		// module should be aborted in some way and a clean unload
 		// (if possible) initiated.
+	}
+}
+
+void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
+			   struct proc_dir_entry *parent)
+{
+	// todo: check if name is stored in proc_dir_entry and remove one arg.
+	if (entry != NULL) {
+		remove_proc_entry(name, parent);
 	}
 }
 

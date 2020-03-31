@@ -97,15 +97,25 @@ test-memory:
 
 	$(eval module_filename = lkm_mem.ko)
 	$(eval mem_proc_total_file = /proc/lkm/mem/total)
+	$(eval mem_proc_free_file = /proc/lkm/mem/free)
 
 	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 1)
 	@sudo insmod $(module_filename)
+	
 	@test -f $(mem_proc_total_file) \
 		|| (echo "!! The /proc file $(module_filename) could not be found."; exit 2) \
 		&& echo ">> Found /proc file $(mem_proc_total_file)."
 	@test `cat $(mem_proc_total_file)` -gt 0 \
-		|| (echo "!! The memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
+		|| (echo "!! The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
+	
+	@test -f $(mem_proc_free_file) \
+		|| (echo "!! The /proc file $(module_filename) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(mem_proc_free_file)."
+	@test `cat $(mem_proc_free_file)` -gt 0 \
+		|| (echo "!! The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and looks okay."
+	
 	@sudo rmmod $(module_filename)
 
 test-parameters:

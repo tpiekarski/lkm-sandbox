@@ -37,11 +37,13 @@ MODULE_VERSION("0.1");
 #define LKM_PROC_PARENT "lkm"
 #define LKM_MEM_PROC_PARENT "mem"
 #define LKM_MEM_PROC_TOTAL_ENTRY "total"
+#define LKM_MEM_PROC_FREE_ENTRY "free"
 
 struct sysinfo si;
 struct proc_dir_entry *lkm_proc_parent;
 struct proc_dir_entry *mem_proc_parent;
 struct proc_dir_entry *mem_proc_total_entry;
+struct proc_dir_entry *mem_proc_free_entry;
 
 static int lkm_value_show(struct seq_file *seq, void *v);
 
@@ -83,6 +85,20 @@ static int __init lkm_mem_init(void)
 		return 1;
 	}
 
+	mem_proc_free_entry =
+		proc_create_single_data(LKM_MEM_PROC_FREE_ENTRY,
+					LKM_PROC_PERMISSION, mem_proc_parent,
+					lkm_value_show, &si.freeram);
+
+	if (mem_proc_free_entry == NULL) {
+		printk(KERN_ERR
+		       "lkm_mem: Failed to create entry /proc/%s/%s/%s.\n",
+		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT,
+		       LKM_MEM_PROC_FREE_ENTRY);
+
+		return 1;
+	}
+
 	return 0;
 }
 
@@ -90,6 +106,10 @@ static void __exit lkm_mem_exit(void)
 {
 	if (mem_proc_total_entry != NULL) {
 		remove_proc_entry(LKM_MEM_PROC_TOTAL_ENTRY, mem_proc_parent);
+	}
+
+	if (mem_proc_free_entry != NULL) {
+		remove_proc_entry(LKM_MEM_PROC_FREE_ENTRY, mem_proc_parent);
 	}
 
 	if (mem_proc_parent != NULL) {

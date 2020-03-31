@@ -70,6 +70,21 @@ void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 	}
 }
 
+void lkm_proc_mkdir(struct proc_dir_entry *entry, const char *name,
+		    struct proc_dir_entry *parent)
+{
+	entry = proc_mkdir(name, parent);
+
+	if (entry == NULL) {
+		printk(KERN_ERR
+		       "lkm_mem: Failed to create parent %s in proc.\n",
+		       name);
+
+		// todo: How to abort loading module?
+		// For details see lkm_proc_create_single_data.
+	}
+}
+
 void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 			   struct proc_dir_entry *parent)
 {
@@ -81,25 +96,8 @@ void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 
 static int __init lkm_mem_init(void)
 {
-	lkm_proc_parent = proc_mkdir(LKM_PROC_PARENT, NULL);
-
-	if (lkm_proc_parent == NULL) {
-		printk(KERN_ERR
-		       "lkm_mem: Failed to create parent /proc/%s for lkm.\n",
-		       LKM_PROC_PARENT);
-
-		return 1;
-	}
-
-	mem_proc_parent = proc_mkdir(LKM_MEM_PROC_PARENT, lkm_proc_parent);
-
-	if (mem_proc_parent == NULL) {
-		printk(KERN_ERR
-		       "lkm_mem: Failed to create parent /proc/%s/%s for mem.\n",
-		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT);
-
-		return 1;
-	}
+	lkm_proc_mkdir(lkm_proc_parent, LKM_PROC_PARENT, NULL);
+	lkm_proc_mkdir(mem_proc_parent, LKM_MEM_PROC_PARENT, lkm_proc_parent);
 
 	si_meminfo(&si);
 

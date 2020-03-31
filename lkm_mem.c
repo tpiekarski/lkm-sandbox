@@ -46,6 +46,8 @@ struct proc_dir_entry *mem_proc_total_entry;
 struct proc_dir_entry *mem_proc_free_entry;
 
 static int lkm_value_show(struct seq_file *seq, void *v);
+void lkm_proc_create_single_data(struct proc_dir_entry *entry,
+				 unsigned long *value, const char *name);
 
 static int __init lkm_mem_init(void)
 {
@@ -85,19 +87,8 @@ static int __init lkm_mem_init(void)
 		return 1;
 	}
 
-	mem_proc_free_entry =
-		proc_create_single_data(LKM_MEM_PROC_FREE_ENTRY,
-					LKM_PROC_PERMISSION, mem_proc_parent,
-					lkm_value_show, &si.freeram);
-
-	if (mem_proc_free_entry == NULL) {
-		printk(KERN_ERR
-		       "lkm_mem: Failed to create entry /proc/%s/%s/%s.\n",
-		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT,
-		       LKM_MEM_PROC_FREE_ENTRY);
-
-		return 1;
-	}
+	lkm_proc_create_single_data(mem_proc_free_entry, &si.freeram,
+				    LKM_MEM_PROC_FREE_ENTRY);
 
 	return 0;
 }
@@ -127,6 +118,23 @@ static int lkm_value_show(struct seq_file *seq, void *v)
 	seq_putc(seq, '\n');
 
 	return 0;
+}
+
+void lkm_proc_create_single_data(struct proc_dir_entry *entry,
+				 unsigned long *value, const char *name)
+{
+	entry = proc_create_single_data(name, LKM_PROC_PERMISSION,
+					mem_proc_parent, lkm_value_show, value);
+
+	if (entry == NULL) {
+		printk(KERN_ERR "lkm_mem: Failed to create /proc/%s/%s/%s.\n",
+		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, name);
+
+		// todo: What and how to return error-code without having
+		// ifs in calling function all over the place? Loading of
+		// module should be aborted in some way and a clean unload
+		// (if possible) initiated.
+	}
 }
 
 module_init(lkm_mem_init);

@@ -45,11 +45,39 @@ struct proc_dir_entry *mem_proc_parent;
 struct proc_dir_entry *mem_proc_total_entry;
 struct proc_dir_entry *mem_proc_free_entry;
 
-static int lkm_value_show(struct seq_file *seq, void *v);
+static int lkm_value_show(struct seq_file *seq, void *v)
+{
+	seq_put_decimal_ull(seq, "", *(unsigned long *)seq->private);
+	seq_putc(seq, '\n');
+
+	return 0;
+}
+
 void lkm_proc_create_single_data(struct proc_dir_entry *entry,
-				 unsigned long *value, const char *name);
+				 unsigned long *value, const char *name)
+{
+	entry = proc_create_single_data(name, LKM_PROC_PERMISSION,
+					mem_proc_parent, lkm_value_show, value);
+
+	if (entry == NULL) {
+		printk(KERN_ERR "lkm_mem: Failed to create /proc/%s/%s/%s.\n",
+		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, name);
+
+		// todo: What and how to return error-code without having
+		// ifs in calling function all over the place? Loading of
+		// module should be aborted in some way and a clean unload
+		// (if possible) initiated.
+	}
+}
+
 void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
-			   struct proc_dir_entry *parent);
+			   struct proc_dir_entry *parent)
+{
+	// todo: check if name is stored in proc_dir_entry and remove one arg.
+	if (entry != NULL) {
+		remove_proc_entry(name, parent);
+	}
+}
 
 static int __init lkm_mem_init(void)
 {
@@ -96,40 +124,6 @@ static void __exit lkm_mem_exit(void)
 			      lkm_proc_parent);
 
 	lkm_remove_proc_entry(lkm_proc_parent, LKM_PROC_PARENT, NULL);
-}
-
-static int lkm_value_show(struct seq_file *seq, void *v)
-{
-	seq_put_decimal_ull(seq, "", *(unsigned long *)seq->private);
-	seq_putc(seq, '\n');
-
-	return 0;
-}
-
-void lkm_proc_create_single_data(struct proc_dir_entry *entry,
-				 unsigned long *value, const char *name)
-{
-	entry = proc_create_single_data(name, LKM_PROC_PERMISSION,
-					mem_proc_parent, lkm_value_show, value);
-
-	if (entry == NULL) {
-		printk(KERN_ERR "lkm_mem: Failed to create /proc/%s/%s/%s.\n",
-		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, name);
-
-		// todo: What and how to return error-code without having
-		// ifs in calling function all over the place? Loading of
-		// module should be aborted in some way and a clean unload
-		// (if possible) initiated.
-	}
-}
-
-void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
-			   struct proc_dir_entry *parent)
-{
-	// todo: check if name is stored in proc_dir_entry and remove one arg.
-	if (entry != NULL) {
-		remove_proc_entry(name, parent);
-	}
 }
 
 module_init(lkm_mem_init);

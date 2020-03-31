@@ -56,17 +56,16 @@ static int lkm_value_show(struct seq_file *seq, void *v)
 void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 				 unsigned long *value, const char *name)
 {
+	// todo: Try to generalize more for comming swap proc entries.
 	entry = proc_create_single_data(name, LKM_PROC_PERMISSION,
 					mem_proc_parent, lkm_value_show, value);
 
 	if (entry == NULL) {
+		// todo: Remove LKM_MEM_PROC_PARENT and pass as arg.
 		printk(KERN_ERR "lkm_mem: Failed to create /proc/%s/%s/%s.\n",
 		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, name);
 
-		// todo: What and how to return error-code without having
-		// ifs in calling function all over the place? Loading of
-		// module should be aborted in some way and a clean unload
-		// (if possible) initiated.
+		// todo: How to abort loading module in gentle way?
 	}
 }
 
@@ -80,15 +79,14 @@ void lkm_proc_mkdir(struct proc_dir_entry *entry, const char *name,
 		       "lkm_mem: Failed to create parent %s in proc.\n",
 		       name);
 
-		// todo: How to abort loading module?
-		// For details see lkm_proc_create_single_data.
+		// todo: How to abort loading module in gentle way?
 	}
 }
 
 void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 			   struct proc_dir_entry *parent)
 {
-	// todo: check if name is stored in proc_dir_entry and remove one arg.
+	// todo: Check if name is stored in proc_dir_entry and use it instead of passing it.
 	if (entry != NULL) {
 		remove_proc_entry(name, parent);
 	}

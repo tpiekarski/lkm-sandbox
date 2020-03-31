@@ -91,13 +91,8 @@ test-device:
 	@sudo rm $(device_filename)
 	@sudo rmmod $(module_filename)
 
-<<<<<<< HEAD
-test-module:
-	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer)
-=======
 test-memory:
 	$(info >> Testing module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
->>>>>>> Updating Makefile for new lkm_mem module and rewriting/updating a little bit README.md
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
 	$(eval module_filename = lkm_mem.ko)

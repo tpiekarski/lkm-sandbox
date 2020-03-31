@@ -22,15 +22,15 @@
  */
 
 #include <linux/init.h>
-#include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/mm.h>
+#include <linux/module.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
-MODULE_DESCRIPTION("Exposing memory and swap statistics to /proc");
+MODULE_DESCRIPTION("Exposing separated memory and swap statistics to /proc");
 MODULE_VERSION("0.1");
 
 #define LKM_PROC_PERMISSION 0444
@@ -45,55 +45,68 @@ struct proc_dir_entry *mem_proc_total_entry;
 
 static int lkm_value_show(struct seq_file *seq, void *v);
 
-static int __init lkm_mem_init(void) {
-    lkm_proc_parent = proc_mkdir(LKM_PROC_PARENT, NULL);
+static int __init lkm_mem_init(void)
+{
+	lkm_proc_parent = proc_mkdir(LKM_PROC_PARENT, NULL);
 
-    if (lkm_proc_parent == NULL) {
-        printk(KERN_ERR "lkm_mem: Failed to create parent /proc/%s for lkm", LKM_PROC_PARENT);
+	if (lkm_proc_parent == NULL) {
+		printk(KERN_ERR
+		       "lkm_mem: Failed to create parent /proc/%s for lkm.\n",
+		       LKM_PROC_PARENT);
 
-        return 1;
-    }
+		return 1;
+	}
 
-    mem_proc_parent = proc_mkdir(LKM_MEM_PROC_PARENT, lkm_proc_parent);
+	mem_proc_parent = proc_mkdir(LKM_MEM_PROC_PARENT, lkm_proc_parent);
 
-    if (mem_proc_parent == NULL) {
-        printk(KERN_ERR "lkm_mem: Failed to create parent /proc/%s/%s for mem", LKM_PROC_PARENT, LKM_MEM_PROC_PARENT);
+	if (mem_proc_parent == NULL) {
+		printk(KERN_ERR
+		       "lkm_mem: Failed to create parent /proc/%s/%s for mem.\n",
+		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT);
 
-        return 1;
-    }
+		return 1;
+	}
 
-    si_meminfo(&si);
+	si_meminfo(&si);
 
-    mem_proc_total_entry = proc_create_single_data(LKM_MEM_PROC_TOTAL_ENTRY, LKM_PROC_PERMISSION, mem_proc_parent, lkm_value_show, &si.totalram);
+	mem_proc_total_entry =
+		proc_create_single_data(LKM_MEM_PROC_TOTAL_ENTRY,
+					LKM_PROC_PERMISSION, mem_proc_parent,
+					lkm_value_show, &si.totalram);
 
-    if (mem_proc_total_entry == NULL) {
-        printk(KERN_ERR "lkm_mem: Failed to create entry /proc/%s/%s/%s", LKM_PROC_PARENT, LKM_MEM_PROC_PARENT, LKM_MEM_PROC_TOTAL_ENTRY);
+	if (mem_proc_total_entry == NULL) {
+		printk(KERN_ERR
+		       "lkm_mem: Failed to create entry /proc/%s/%s/%s.\n",
+		       LKM_PROC_PARENT, LKM_MEM_PROC_PARENT,
+		       LKM_MEM_PROC_TOTAL_ENTRY);
 
-        return 1;
-    } 
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
 
-static void __exit lkm_mem_exit(void) {
-    if (mem_proc_total_entry != NULL) {
-        remove_proc_entry(LKM_MEM_PROC_TOTAL_ENTRY, mem_proc_parent);
-    }
+static void __exit lkm_mem_exit(void)
+{
+	if (mem_proc_total_entry != NULL) {
+		remove_proc_entry(LKM_MEM_PROC_TOTAL_ENTRY, mem_proc_parent);
+	}
 
-    if (mem_proc_parent != NULL) {
-        remove_proc_entry(LKM_MEM_PROC_PARENT, lkm_proc_parent);
-    }
+	if (mem_proc_parent != NULL) {
+		remove_proc_entry(LKM_MEM_PROC_PARENT, lkm_proc_parent);
+	}
 
-    if (lkm_proc_parent != NULL) {
-        remove_proc_entry(LKM_PROC_PARENT, NULL);
-    }
+	if (lkm_proc_parent != NULL) {
+		remove_proc_entry(LKM_PROC_PARENT, NULL);
+	}
 }
 
-static int lkm_value_show(struct seq_file *seq, void *v) {
-    seq_put_decimal_ull(seq, "", *(unsigned long*)seq->private);
-    seq_putc(seq, '\n');
+static int lkm_value_show(struct seq_file *seq, void *v)
+{
+	seq_put_decimal_ull(seq, "", *(unsigned long *)seq->private);
+	seq_putc(seq, '\n');
 
-    return 0;
+	return 0;
 }
 
 module_init(lkm_mem_init);

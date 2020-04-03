@@ -69,9 +69,11 @@ void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 	}
 }
 
-void lkm_proc_mkdir(struct proc_dir_entry *entry, const char *name,
-		    struct proc_dir_entry *parent)
+struct proc_dir_entry *lkm_proc_mkdir(const char *name,
+				      struct proc_dir_entry *parent)
 {
+	struct proc_dir_entry *entry;
+
 	entry = proc_mkdir(name, parent);
 
 	if (entry == NULL) {
@@ -81,6 +83,8 @@ void lkm_proc_mkdir(struct proc_dir_entry *entry, const char *name,
 
 		// todo: How to abort loading module in gentle way?
 	}
+
+	return entry;
 }
 
 void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
@@ -94,8 +98,8 @@ void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 
 static int __init lkm_mem_init(void)
 {
-	lkm_proc_mkdir(lkm_proc_parent, LKM_PROC_PARENT, NULL);
-	lkm_proc_mkdir(mem_proc_parent, LKM_MEM_PROC_PARENT, lkm_proc_parent);
+	lkm_proc_parent = lkm_proc_mkdir(LKM_PROC_PARENT, NULL);
+	mem_proc_parent = lkm_proc_mkdir(LKM_MEM_PROC_PARENT, lkm_proc_parent);
 
 	si_meminfo(&si);
 

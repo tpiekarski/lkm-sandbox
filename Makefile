@@ -96,25 +96,42 @@ test-memory:
 	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
 	$(eval module_filename = lkm_mem.ko)
-	$(eval mem_proc_total_file = /proc/lkm/mem/total)
+	$(eval mem_proc_buffer_file = /proc/lkm/mem/buffer)
 	$(eval mem_proc_free_file = /proc/lkm/mem/free)
+	$(eval mem_proc_shared_file = /proc/lkm/mem/shared)
+	$(eval mem_proc_total_file = /proc/lkm/mem/total)
+	
 
 	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 1)
 	@sudo insmod $(module_filename)
-	
-	@test -f $(mem_proc_total_file) \
-		|| (echo "!! The /proc file $(module_filename) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(mem_proc_total_file)."
-	@test `cat $(mem_proc_total_file)` -gt 0 \
-		|| (echo "!! The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
+
+	@test -f $(mem_proc_buffer_file) \
+		|| (echo "!! The /proc file $(mem_proc_buffer_file) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(mem_proc_buffer_file)."
+	@test `cat $(mem_proc_buffer_file)` -gt 0 \
+		|| (echo "!! The free memory read from $(mem_proc_buffer_file) is `cat $(mem_proc_buffer_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The free memory read from $(mem_proc_buffer_file) is `cat $(mem_proc_buffer_file)` and looks okay."
 	
 	@test -f $(mem_proc_free_file) \
-		|| (echo "!! The /proc file $(module_filename) could not be found."; exit 2) \
+		|| (echo "!! The /proc file $(mem_proc_free_file) could not be found."; exit 2) \
 		&& echo ">> Found /proc file $(mem_proc_free_file)."
 	@test `cat $(mem_proc_free_file)` -gt 0 \
 		|| (echo "!! The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and less than 0, something can not be right."; exit 3) \
 		&& echo ">> The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and looks okay."
+
+	@test -f $(mem_proc_shared_file) \
+		|| (echo "!! The /proc file $(mem_proc_shared_file) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(mem_proc_shared_file)."
+	@test `cat $(mem_proc_shared_file)` -gt 0 \
+		|| (echo "!! The free memory read from $(mem_proc_shared_file) is `cat $(mem_proc_shared_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The free memory read from $(mem_proc_shared_file) is `cat $(mem_proc_shared_file)` and looks okay."
+
+	@test -f $(mem_proc_total_file) \
+		|| (echo "!! The /proc file $(mem_proc_total_file) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(mem_proc_total_file)."
+	@test `cat $(mem_proc_total_file)` -gt 0 \
+		|| (echo "!! The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
+		&& echo ">> The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
 	
 	@sudo rmmod $(module_filename)
 

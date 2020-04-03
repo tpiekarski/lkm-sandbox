@@ -36,14 +36,18 @@ MODULE_VERSION("0.1");
 #define LKM_PROC_PERMISSION 0444
 #define LKM_PROC_PARENT "lkm"
 #define LKM_MEM_PROC_PARENT "mem"
-#define LKM_MEM_PROC_TOTAL_ENTRY "total"
+#define LKM_MEM_PROC_BUFFER_ENTRY "buffer"
 #define LKM_MEM_PROC_FREE_ENTRY "free"
+#define LKM_MEM_PROC_SHARED_ENTRY "shared"
+#define LKM_MEM_PROC_TOTAL_ENTRY "total"
 
 struct sysinfo si;
 struct proc_dir_entry *lkm_proc_parent;
 struct proc_dir_entry *mem_proc_parent;
-struct proc_dir_entry *mem_proc_total_entry;
+struct proc_dir_entry *mem_proc_buffer_entry;
 struct proc_dir_entry *mem_proc_free_entry;
+struct proc_dir_entry *mem_proc_shared_entry;
+struct proc_dir_entry *mem_proc_total_entry;
 
 static int lkm_value_show(struct seq_file *seq, void *v)
 {
@@ -103,21 +107,33 @@ static int __init lkm_mem_init(void)
 
 	si_meminfo(&si);
 
-	lkm_proc_create_single_data(mem_proc_total_entry, &si.totalram,
-				    LKM_MEM_PROC_TOTAL_ENTRY);
+	lkm_proc_create_single_data(mem_proc_buffer_entry, &si.bufferram,
+				    LKM_MEM_PROC_BUFFER_ENTRY);
 
 	lkm_proc_create_single_data(mem_proc_free_entry, &si.freeram,
 				    LKM_MEM_PROC_FREE_ENTRY);
+
+	lkm_proc_create_single_data(mem_proc_shared_entry, &si.sharedram,
+				    LKM_MEM_PROC_SHARED_ENTRY);
+
+	lkm_proc_create_single_data(mem_proc_total_entry, &si.totalram,
+				    LKM_MEM_PROC_TOTAL_ENTRY);
 
 	return 0;
 }
 
 static void __exit lkm_mem_exit(void)
 {
-	lkm_remove_proc_entry(mem_proc_total_entry, LKM_MEM_PROC_TOTAL_ENTRY,
+	lkm_remove_proc_entry(mem_proc_buffer_entry, LKM_MEM_PROC_BUFFER_ENTRY,
 			      mem_proc_parent);
 
 	lkm_remove_proc_entry(mem_proc_free_entry, LKM_MEM_PROC_FREE_ENTRY,
+			      mem_proc_parent);
+
+	lkm_remove_proc_entry(mem_proc_shared_entry, LKM_MEM_PROC_SHARED_ENTRY,
+			      mem_proc_parent);
+
+	lkm_remove_proc_entry(mem_proc_total_entry, LKM_MEM_PROC_TOTAL_ENTRY,
 			      mem_proc_parent);
 
 	lkm_remove_proc_entry(mem_proc_parent, LKM_MEM_PROC_PARENT,

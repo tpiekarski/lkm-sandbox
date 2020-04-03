@@ -45,6 +45,7 @@ test:
 	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
+	@echo "All test targets have run successfully."
 
 #
 # Generic targets for load/dmesg/unload module tests
@@ -100,6 +101,8 @@ test-memory:
 	$(eval mem_proc_free_file = /proc/lkm/mem/free)
 	$(eval mem_proc_shared_file = /proc/lkm/mem/shared)
 	$(eval mem_proc_total_file = /proc/lkm/mem/total)
+	$(eval swap_proc_free_file = /proc/lkm/swap/free)
+	$(eval swap_proc_total_file = /proc/lkm/swap/total)
 	
 
 	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 1)
@@ -132,7 +135,15 @@ test-memory:
 	@test `cat $(mem_proc_total_file)` -gt 0 \
 		|| (echo "!! The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
 		&& echo ">> The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
-	
+
+	@test -f $(swap_proc_free_file) \
+		|| (echo "!! The /proc file $(swap_proc_free_file) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(swap_proc_free_file)."
+
+	@test -f $(swap_proc_total_file) \
+		|| (echo "!! The /proc file $(swap_proc_total_file) could not be found."; exit 2) \
+		&& echo ">> Found /proc file $(swap_proc_total_file)."
+
 	@sudo rmmod $(module_filename)
 
 test-parameters:

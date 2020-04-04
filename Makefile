@@ -25,7 +25,7 @@ SHELL:=/bin/bash
 
 ccflags-y := -Wall
 
-obj-m += lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -39,6 +39,7 @@ test:
 	@$(MAKE) test-module name=lkm_mem
 	@$(MAKE) test-module name=lkm_parameters
 	@$(MAKE) test-module name=lkm_proc
+	@$(MAKE) test-module name=lkm_process
 	@$(MAKE) test-module name=lkm_sandbox
 	@$(MAKE) test-module name=lkm_skeleton
 	@$(MAKE) test-device

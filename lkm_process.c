@@ -33,16 +33,16 @@ MODULE_VERSION("0.1");
 
 static int __init lkm_process_init(void)
 {
-	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n", __FILE__,
-	       current->comm, current->pid);
+	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n",
+	       THIS_MODULE->name, current->comm, current->pid);
 
 	return 0;
 }
 
 static void __exit lkm_process_exit(void)
 {
-	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n", __FILE__,
-	       current->comm, current->pid);
+	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n",
+	       THIS_MODULE->name, current->comm, current->pid);
 }
 
 module_init(lkm_process_init);

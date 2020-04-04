@@ -25,24 +25,59 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Accessing current process information");
 MODULE_VERSION("0.1");
 
+static char *info;
+
+static char *get_process_information(void)
+{
+	char *buffer;
+	int written;
+
+	buffer = NULL;
+	written = 0;
+
+	buffer = kmalloc(30, GFP_USER);
+
+	if (buffer == NULL) {
+		return NULL;
+	}
+
+	written = sprintf(buffer, "%s: Current process is '%s' (pid %i)\n",
+			  THIS_MODULE->name, current->comm, current->pid);
+
+	if (written == 0) {
+		printk(KERN_WARNING "%s: Failed writing process information.",
+		       THIS_MODULE->name);
+
+		return NULL;
+	}
+
+	return buffer;
+}
+
+static void print_process_information(void)
+{
+	info = get_process_information();
+	printk(KERN_INFO "%s", info);
+	kfree(info);
+}
+
 static int __init lkm_process_init(void)
 {
-	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n",
-	       THIS_MODULE->name, current->comm, current->pid);
+	print_process_information();
 
 	return 0;
 }
 
 static void __exit lkm_process_exit(void)
 {
-	printk(KERN_INFO "%s: Current process is '%s' (pid %i)\n",
-	       THIS_MODULE->name, current->comm, current->pid);
+	print_process_information();
 }
 
 module_init(lkm_process_init);

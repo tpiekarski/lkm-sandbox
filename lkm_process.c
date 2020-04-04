@@ -21,14 +21,50 @@
  * 
  */
 
+#include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Character device for process information");
 MODULE_VERSION("0.1");
+
+static ssize_t device_read(struct file *sf, char *buffer, size_t len,
+			   loff_t *offset)
+{
+	// todo: implement
+
+	// todo: get current process information and output them
+
+	ssize_t s;
+	return s;
+}
+
+static ssize_t device_write(struct file *sf, const char *buffer, size_t len,
+			    loff_t *offset)
+{
+	// todo: implement
+
+	ssize_t s;
+	return s;
+}
+
+static int device_open(struct inode *inode, struct file *file)
+{
+	// todo: implement
+
+	return 0;
+}
+
+static int device_release(struct inode *inode, struct file *file)
+{
+	// todo: implement
+
+	return 0;
+}
 
 static int __init lkm_process_init(void)
 {

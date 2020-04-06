@@ -32,7 +32,7 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Accessing current process information");
 MODULE_VERSION("0.1");
 
-#define LKM_PROCESS_OUTPUT_SIZE 30
+#define LKM_PROCESS_OUTPUT_SIZE 64
 
 static char *info;
 
@@ -54,8 +54,9 @@ static char *get_process_information(void)
 		return NULL;
 	}
 
-	written = sprintf(buffer, "%s: Current process is '%s' (pid %i)\n",
-			  THIS_MODULE->name, current->comm, current->pid);
+	written = snprintf(buffer, LKM_PROCESS_OUTPUT_SIZE,
+			   "%s: Current process is '%s' (pid %i)\n",
+			   THIS_MODULE->name, current->comm, current->pid);
 
 	if (written == 0) {
 		printk(KERN_WARNING "%s: Failed writing process information.\n",
@@ -70,6 +71,14 @@ static char *get_process_information(void)
 static void print_process_information(void)
 {
 	info = get_process_information();
+
+	if (info == NULL) {
+		printk(KERN_WARNING "%s: Failed getting process information.\n",
+		       THIS_MODULE->name);
+
+		return;
+	}
+
 	printk(KERN_INFO "%s", info);
 	kfree(info);
 }

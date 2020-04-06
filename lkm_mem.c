@@ -102,10 +102,7 @@ void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 			   struct proc_dir_entry *parent)
 {
 	// todo: Check if name is stored in proc_dir_entry and use it instead of passing it.
-	printk(KERN_INFO "lkm_mem::DEBUG: Checking if %s is to be removed...",
-	       name);
 	if (entry != NULL) {
-		printk(KERN_INFO "lkm_mem::DEBUG: Removing %s", name);
 		remove_proc_entry(name, parent);
 	}
 }

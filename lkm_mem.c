@@ -63,10 +63,12 @@ static int lkm_value_show(struct seq_file *seq, void *v)
 	return 0;
 }
 
-void lkm_proc_create_single_data(struct proc_dir_entry *entry,
-				 unsigned long *value, const char *name,
-				 struct proc_dir_entry *parent)
+struct proc_dir_entry *
+lkm_proc_create_single_data(const char *name, unsigned long *value,
+			    struct proc_dir_entry *parent)
 {
+	struct proc_dir_entry *entry;
+
 	entry = proc_create_single_data(name, LKM_PROC_PERMISSION, parent,
 					lkm_value_show, value);
 
@@ -74,6 +76,8 @@ void lkm_proc_create_single_data(struct proc_dir_entry *entry,
 		printk(KERN_ERR "lkm_mem: Failed to create %s.\n", name);
 		// todo: How to abort loading module in gentle way?
 	}
+
+	return entry;
 }
 
 struct proc_dir_entry *lkm_proc_mkdir(const char *name,
@@ -98,7 +102,10 @@ void lkm_remove_proc_entry(struct proc_dir_entry *entry, const char *name,
 			   struct proc_dir_entry *parent)
 {
 	// todo: Check if name is stored in proc_dir_entry and use it instead of passing it.
+	printk(KERN_INFO "lkm_mem::DEBUG: Checking if %s is to be removed...",
+	       name);
 	if (entry != NULL) {
+		printk(KERN_INFO "lkm_mem::DEBUG: Removing %s", name);
 		remove_proc_entry(name, parent);
 	}
 }
@@ -111,27 +118,26 @@ static int __init lkm_mem_init(void)
 
 	mem_proc_parent = lkm_proc_mkdir(LKM_MEM_PROC_PARENT, lkm_proc_parent);
 
-	lkm_proc_create_single_data(mem_proc_buffer_entry, &si.bufferram,
-				    LKM_MEM_PROC_BUFFER_ENTRY, mem_proc_parent);
+	mem_proc_buffer_entry = lkm_proc_create_single_data(
+		LKM_MEM_PROC_BUFFER_ENTRY, &si.bufferram, mem_proc_parent);
 
-	lkm_proc_create_single_data(mem_proc_free_entry, &si.freeram,
-				    LKM_MEM_PROC_FREE_ENTRY, mem_proc_parent);
+	mem_proc_free_entry = lkm_proc_create_single_data(
+		LKM_MEM_PROC_FREE_ENTRY, &si.freeram, mem_proc_parent);
 
-	lkm_proc_create_single_data(mem_proc_shared_entry, &si.sharedram,
-				    LKM_MEM_PROC_SHARED_ENTRY, mem_proc_parent);
+	mem_proc_shared_entry = lkm_proc_create_single_data(
+		LKM_MEM_PROC_SHARED_ENTRY, &si.sharedram, mem_proc_parent);
 
-	lkm_proc_create_single_data(mem_proc_total_entry, &si.totalram,
-				    LKM_MEM_PROC_TOTAL_ENTRY, mem_proc_parent);
+	mem_proc_total_entry = lkm_proc_create_single_data(
+		LKM_MEM_PROC_TOTAL_ENTRY, &si.totalram, mem_proc_parent);
 
 	swap_proc_parent =
 		lkm_proc_mkdir(LKM_SWAP_PROC_PARENT, lkm_proc_parent);
 
-	lkm_proc_create_single_data(swap_proc_free_entry, &si.freeswap,
-				    LKM_SWAP_PROC_FREE_ENTRY, swap_proc_parent);
+	swap_proc_free_entry = lkm_proc_create_single_data(
+		LKM_SWAP_PROC_FREE_ENTRY, &si.freeswap, swap_proc_parent);
 
-	lkm_proc_create_single_data(swap_proc_free_entry, &si.totalswap,
-				    LKM_SWAP_PROC_TOTAL_ENTRY,
-				    swap_proc_parent);
+	swap_proc_total_entry = lkm_proc_create_single_data(
+		LKM_SWAP_PROC_TOTAL_ENTRY, &si.totalswap, swap_proc_parent);
 
 	return 0;
 }
@@ -152,6 +158,12 @@ static void __exit lkm_mem_exit(void)
 
 	lkm_remove_proc_entry(mem_proc_parent, LKM_MEM_PROC_PARENT,
 			      lkm_proc_parent);
+
+	lkm_remove_proc_entry(swap_proc_free_entry, LKM_SWAP_PROC_FREE_ENTRY,
+			      swap_proc_parent);
+
+	lkm_remove_proc_entry(swap_proc_total_entry, LKM_SWAP_PROC_TOTAL_ENTRY,
+			      swap_proc_parent);
 
 	lkm_remove_proc_entry(swap_proc_parent, LKM_SWAP_PROC_PARENT,
 			      lkm_proc_parent);

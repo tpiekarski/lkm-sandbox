@@ -2,8 +2,8 @@ Linux Kernel Module (LKM) Sandbox
 ---
 [![Build Status](https://travis-ci.org/tpiekarski/lkm-sandbox.svg?branch=master)](https://travis-ci.org/tpiekarski/lkm-sandbox)
 
-## Overview
-[Building](#building) / [Testing](#testing) / [Make](#make) / [Modules](#modules) / [License](#license) / [Notes](#notes) / [Links](#links)
+## [Overview](#overview)
+[Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [License](#license) / [Notes](#notes) / [Books](#books) / [Links](#links)
 
 The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
@@ -16,7 +16,18 @@ exposing memory/swap information by files in /proc.
 
 I hope it can be valuable for other developers which try to approach the Linux Kernel.
 
-## [Building](#building)
+## [Modules](#modules)
+#|Module|Source|Description
+---|---|---|---
+1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
+2|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
+3|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
+4|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+5|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
+6|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+7|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+
+## [Building](#building) 
 ```
 make clean && make
 ```
@@ -29,13 +40,7 @@ make test
 
 Testing by loading, unloading and outputting Kernel Ring Buffer (sudo will ask for root permissions).
 ```
-make test-module name=lkm_device
-make test-module name=lkm_mem
-make test-module name=lkm_parameters
-make test-module name=lkm_proc
-make test-module name=lkm_process
-make test-module name=lkm_sandbox
-make test-module name=lkm_skeleton
+make test-module name=<module-name>
 ```
 
 Additional tests for the sandbox device including loading module, gathering major device number from /proc,
@@ -74,17 +79,6 @@ cat /sys/module/lkm_parameters/parameters/message
 sudo rmmod lkm_parameters
 ```
 
-## [Modules](#modules)
-#|Module|Source|Description
----|---|---|---
-1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
-2|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
-3|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
-4|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-5|LKM Process|[lkm_process.c](lkm_process.c)|Stream of current process information with own device /dev/process
-6|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-7|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
-
 ## [Make](#make)
 ![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
 
@@ -113,11 +107,17 @@ than operates in a sequential pattern."
 
 *"With kernel development, you’re writing APIs, not applications themselves."*
 
+## [Books](#books)
+- [Linux Device Drivers](https://lwn.net/Kernel/LDD3/) by Jonathan Corbet, Alessandro Rubini, and Greg Kroah-Hartman, 3rd edition, 2009
+- [Linux Kernel in a Nutshell](http://shop.oreilly.com/product/9780596100797.do) By Greg Kroah-Hartman, 1st edition, 2006
+
 ## [Links](#links)
 - Developers Area, [Kernel Module Parameters](https://devarea.com/linux-kernel-development-kernel-module-parameters/) by [Liran B.H](https://devarea.com/author/liran/)
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
 - Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
 - Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
 - Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac
-- [Snippets in Visual Studio Code](https://code.visualstudio.com/docs/editor/userdefinedsnippets)
+- Stackoverflow, [Is there a C function like sprintf in the Linux kernel?](https://stackoverflow.com/questions/12264291/is-there-a-c-function-like-sprintf-in-the-linux-kernel)
+- Stackoverflow, [sprintf function's buffer overflow?](https://stackoverflow.com/questions/4282281/sprintf-functions-buffer-overflow)
 - Superuser, [Variables in GNU Make...](https://superuser.com/questions/790560/variables-in-gnu-make-recipes-is-that-possible)
+- Visual Studio Code, [Snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)

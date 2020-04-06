@@ -113,13 +113,24 @@
 		],
 		"description": "GPLv2 License header"
 	},
-	"Printing to Kernel Ring Buffer": {
+	"Printing to Kernel Ring Buffer from anywhere": {
 		"scope": "c",
 		"prefix": [
-			"p",
-			"print"
+			"pa",
+			"print-a",
+			"print-anywhere"
 		],
-		"body": "printk(${1|KERN_DEBUG,KERN_INFO,KERN_NOTICE,KERN_WARNING,KERN_ERR,KERN_CRIT,KERN_ALERT,KERN_EMERG|} \"${TM_FILENAME_BASE}: $0\");",
-		"description": "Printing values to the Kernel Ring Buffer with printk"
+		"body": "printk(${1|KERN_DEBUG,KERN_INFO,KERN_NOTICE,KERN_WARNING,KERN_ERR,KERN_CRIT,KERN_ALERT,KERN_EMERG|} \"${TM_FILENAME_BASE}: $0\\n\");",
+		"description": "Printing values to the Kernel Ring Buffer with printk from anywhere"
+	},
+	"Printing to Kernel Ring Buffer from modules": {
+		"scope": "c",
+		"prefix": [
+			"pm",
+			"print-m",
+			"print-module"
+		],
+		"body": "printk(${1|KERN_DEBUG,KERN_INFO,KERN_NOTICE,KERN_WARNING,KERN_ERR,KERN_CRIT,KERN_ALERT,KERN_EMERG|} \"%s: $0\\n\", THIS_MODULE->name);",
+		"description": "Printing values to the Kernel Ring Buffer with printk from modules"
 	},
 }

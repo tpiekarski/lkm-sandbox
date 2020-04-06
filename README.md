@@ -33,6 +33,7 @@ make test-module name=lkm_device
 make test-module name=lkm_mem
 make test-module name=lkm_parameters
 make test-module name=lkm_proc
+make test-module name=lkm_process
 make test-module name=lkm_sandbox
 make test-module name=lkm_skeleton
 ```
@@ -80,8 +81,9 @@ sudo rmmod lkm_parameters
 2|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
 3|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
 4|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-5|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-6|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+5|LKM Process|[lkm_process.c](lkm_process.c)|Stream of current process information with own device /dev/process
+6|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+7|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
 
 ## [Make](#make)
 ![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")

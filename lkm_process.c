@@ -32,6 +32,8 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Accessing current process information");
 MODULE_VERSION("0.1");
 
+#define LKM_PROCESS_OUTPUT_SIZE 30
+
 static char *info;
 
 static char *get_process_information(void)
@@ -42,9 +44,13 @@ static char *get_process_information(void)
 	buffer = NULL;
 	written = 0;
 
-	buffer = kmalloc(30, GFP_USER);
+	buffer = kmalloc(LKM_PROCESS_OUTPUT_SIZE, GFP_USER);
 
 	if (buffer == NULL) {
+		printk(KERN_WARNING
+		       "%s: Failed allocating memory for process information.\n",
+		       THIS_MODULE->name);
+
 		return NULL;
 	}
 
@@ -52,7 +58,7 @@ static char *get_process_information(void)
 			  THIS_MODULE->name, current->comm, current->pid);
 
 	if (written == 0) {
-		printk(KERN_WARNING "%s: Failed writing process information.",
+		printk(KERN_WARNING "%s: Failed writing process information.\n",
 		       THIS_MODULE->name);
 
 		return NULL;

@@ -109,26 +109,25 @@ test-parameters:
 	$(eval number = 22)
 	$(eval message = I am a Makefile)
 
-	$(call test_file_exists,$(module))
+	$(call test_module_exists,$(module))
 	@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
 	$(call test_compare_values,`cat /sys/module/$(module)/parameters/number`,"-eq",$(number))
 	$(call test_compare_values,"\"`cat /sys/module/$(module)/parameters/message`\"","=","\"$(message)\"")
 	@sudo rmmod $(module)
 
 test-proc:
-	$(eval proc_module = lkm_proc)
-	$(eval proc_file = /proc/$(proc_module))
-
 	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
 	$(info Root permissions are needed for loading/unloading with insmod/rmmod)
-	
-	$(eval filename = ${proc_module}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	
-	@sudo insmod ${filename}
-	@test -f $(proc_file) && echo ">> The file $(proc_file) exists." || (echo "!! The file $(proc_file) does not exists."; exit 3)
-	@cat $(proc_file)
-	@sudo rmmod ${filename}
+
+	$(eval module = lkm_proc)
+	$(eval proc_file = /proc/$(module))
+	$(eval proc_file_content = Hello, /proc!)
+
+	$(call test_module_exists,$(module))
+	@sudo insmod $(module).ko
+	$(call test_proc_file_readable,$(proc_file))
+	$(call test_compare_values,"\"`cat $(proc_file)`\"","=","\"$(proc_file_content)\"")
+	@sudo rmmod ${module}
 
 #
 # Miscellaneous targets

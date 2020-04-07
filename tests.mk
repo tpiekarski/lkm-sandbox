@@ -53,11 +53,10 @@ define test_value_is_greater_zero
 		&& (echo "  >> Provided value, $(1) is greater than zero")
 endef
 
-define test_value_is_equal
-	@echo "Testing if two values are equal."
-	@test $(1) = $(2) \
-		|| (echo "  !! The value is not equal to $(message)."; exit 5) \
-		&& (echo "  >> The value is equal to what was expected.")
+define test_compare_values
+	@echo "Comparing '$(1)' $(2) ' $(3)'."
+	@test $(1) $(2) $(3) \
+		|| (echo "  !! Comparison failed values have been '$(1)' and '$(3)'."; exit 5)
 endef
 
 define test_module_loaded

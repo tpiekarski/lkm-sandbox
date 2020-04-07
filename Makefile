@@ -79,7 +79,7 @@ test-device:
 	$(call test_file_exists,$(proc_filename),"-f")
 	@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
 	$(call test_file_exists,$(device_filename), "-c")
-	$(call test_value_is_equal,"\"`head -n 1 $(device_filename)`\"","\"$(message)\"")
+	$(call test_compare_values,"\"`head -n 1 $(device_filename)`\"","=","\"$(message)\"")
 	@sudo rm $(device_filename)
 	@sudo rmmod $(module_filename)
 
@@ -102,23 +102,18 @@ test-memory:
 	@sudo rmmod $(module_filename)
 
 test-parameters:
+	$(info Running additional tests for 'lkm_parameters' by loading and checking parameters in /sys filesystem)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+
 	$(eval module = lkm_parameters)
 	$(eval number = 22)
 	$(eval message = I am a Makefile)
 
-	$(info Running additional tests for 'lkm_parameters' by loading and checking parameters in /sys filesystem)
-	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
-
-	$(eval filename = ${module}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	@sudo insmod $(filename) number=$(number) message=\"$(message)\"
-	@test "`cat /sys/module/$(module)/parameters/number`" -eq $(number) \
-		|| (echo "!! The parameter 'number' is unequal $(number)."; exit 3) \
-		&& echo "Passed parameter 'number' is equal to $(number)."
-	@test "\"`cat /sys/module/$(module)/parameters/message`\"" = "\"$(message)\"" \
-		|| (echo "!! The parameter 'message' is unequal $(message)."; exit 3) \
-		&& echo "Passed parameter 'message' is equal to $(message)."
-	@sudo rmmod $(filename)
+	$(call test_file_exists,$(module))
+	@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+	$(call test_compare_values,`cat /sys/module/$(module)/parameters/number`,"-eq",$(number))
+	$(call test_compare_values,"\"`cat /sys/module/$(module)/parameters/message`\"","=","\"$(message)\"")
+	@sudo rmmod $(module)
 
 test-proc:
 	$(eval proc_module = lkm_proc)
@@ -146,7 +141,8 @@ test-tests:
 	@sudo insmod lkm_sandbox.ko
 	$(call test_module_loaded,lkm_sandbox)
 	@sudo rmmod lkm_sandbox
-	$(call test_value_is_equal,42,42)
+	$(call test_compare_values,42,"-eq",42)
+	$(call test_compare_values,"foo","=","foo")
 
 license:
 	@echo -e " LKM Sandbox::Make\n\n \

@@ -48,22 +48,23 @@ endef
 
 define test_value_is_greater_zero
 	@echo "Testing if value $(1) is greater than zero."
-	# todo: implement test
-	@echo "Not yet implemented"
+	@test $(1) -gt 0 \
+		|| (echo "  !! Provided value, $(1) is not greater than zero."; exit 1) \
+		&& (echo "  >> Provided value, $(1) is greater than zero")
 endef
 
 define test_value_is_equal
 	@echo "Testing if two values are equal."
 	@test $(1) = $(2) \
-	|| (echo "  !! The value is not equal to $(message)."; exit 5) \
-	&& (echo "  >> The value is equal to what was expected.")
+		|| (echo "  !! The value is not equal to $(message)."; exit 5) \
+		&& (echo "  >> The value is equal to what was expected.")
 endef
 
 define test_module_loaded
-@echo "Testing if module $(1) was loaded."
-@lsmod | awk '{print $$1}' | grep -qE "^$(1)$$"  \
-	&& echo "  >> Module $(1) is loaded." \
-	|| echo "  !! Module $(1) is not loaded."
+	@echo "Testing if module $(1) was loaded."
+	@lsmod | awk '{print $$1}' | grep -qE "^$(1)$$"  \
+		&& echo "  >> Module $(1) is loaded." \
+		|| echo "  !! Module $(1) is not loaded."
 endef
 
 define test_module
@@ -72,6 +73,17 @@ define test_module
 	$(call test_module_loaded,$(1))
 	@sudo rmmod $(1)
 	@dmesg
+endef
+
+define test_proc_file_content_greater_than_zero
+	$(call test_file_exists,$(1),"-f")
+	$(call test_file_readable,$(1))
+	$(call test_value_is_greater_zero,`cat $(1)`)
+endef
+
+define test_proc_file_readable
+	$(call test_file_exists,$(1), "-f")
+	$(call test_file_readable,$(1))
 endef
 
 define load_module

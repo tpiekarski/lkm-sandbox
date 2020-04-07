@@ -22,10 +22,11 @@
 #
 
 SHELL:=/bin/bash
-
+SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ccflags-y := -Wall
-
 obj-m += lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
+
+include $(SELF_DIR)/tests.mk
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -64,6 +65,12 @@ test-module:
 	@sudo insmod ${filename}
 	@sudo rmmod ${filename}
 	@dmesg
+
+test-functions:
+	$(call test_file_exists)
+	$(call test_module_exists)
+	$(call test_value_is_greater_zero)
+	$(call test_value_is_equal)
 
 #
 # Targets for additional concept-based module tests

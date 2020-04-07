@@ -112,6 +112,7 @@ than operates in a sequential pattern."
 - [Linux Kernel in a Nutshell](http://shop.oreilly.com/product/9780596100797.do) By Greg Kroah-Hartman, 1st edition, 2006
 
 ## [Links](#links)
+- Coderwall, [Define your own functions in a Makefile](https://coderwall.com/p/cezf6g/define-your-own-function-in-a-makefile) by [Julien Gonzalez](https://coderwall.com/customcommander)
 - Developers Area, [Kernel Module Parameters](https://devarea.com/linux-kernel-development-kernel-module-parameters/) by [Liran B.H](https://devarea.com/author/liran/)
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
 - Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
@@ -120,4 +121,5 @@ than operates in a sequential pattern."
 - Stackoverflow, [Is there a C function like sprintf in the Linux kernel?](https://stackoverflow.com/questions/12264291/is-there-a-c-function-like-sprintf-in-the-linux-kernel)
 - Stackoverflow, [sprintf function's buffer overflow?](https://stackoverflow.com/questions/4282281/sprintf-functions-buffer-overflow)
 - Superuser, [Variables in GNU Make...](https://superuser.com/questions/790560/variables-in-gnu-make-recipes-is-that-possible)
+- SysTutorials, [How to get a Makefiles directory for including other Makefiles](https://www.systutorials.com/how-to-get-a-makefiles-directory-for-including-other-makefiles/) by Eric Ma
 - Visual Studio Code, [Snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)

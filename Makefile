@@ -22,10 +22,11 @@
 #
 
 SHELL:=/bin/bash
-
+SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ccflags-y := -Wall
-
 obj-m += lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
+
+include $(SELF_DIR)/tests.mk
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -35,6 +36,7 @@ clean:
 
 test:
 	$(info Running all available tests)
+	@$(MAKE) test-tests
 	@$(MAKE) test-module name=lkm_device
 	@$(MAKE) test-module name=lkm_mem
 	@$(MAKE) test-module name=lkm_parameters
@@ -46,6 +48,7 @@ test:
 	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
+
 	@echo "All test targets have run successfully."
 
 #
@@ -53,137 +56,95 @@ test:
 #
 
 test-module:
-	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
-	
-	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
-	$(eval filename = ${name}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	
-	@sudo dmesg --clear
-	@sudo insmod ${filename}
-	@sudo rmmod ${filename}
-	@dmesg
+	$(info Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(call test_module_exists,$(name))
+	$(call test_module,$(name))
 
 #
 # Targets for additional concept-based module tests
 #
 
 test-device:
-	$(info >> Additional testing module 'lkm_device' by loading, accessing major device number in /proc and creating device)
-	$(info >> Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
+	$(info Running additional tests for module 'lkm_device' by loading, accessing major device number in /proc and creating device)
+	$(info Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
 
-	$(eval module_filename = lkm_device.ko)
+	$(eval module = lkm_device)
 	$(eval proc_filename = /proc/lkm_device_major)
 	$(eval device_filename = /dev/lkm_device)
 	$(eval message = Hello, Linux!)
 
-	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 2)
-	@sudo insmod $(module_filename)
-	@test -f ${proc_filename} \
-		|| (echo "!! The /proc file containing devices major number could not be found."; exit 3) \
-		&& echo ">> Found /proc file for accessing devices major number"
+	$(call test_module_exists,$(module))
+	$(call load_module,$(module))
+	$(call test_file_exists,$(proc_filename),"-f")
 	@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-	@test -c $(device_filename) \
-		|| (echo "!! Failed creating device file $(device_filename)."; exit 4) \
-		&& echo ">> Successfully created device $(device_filename)."
-	@test "\"`head -n 1 $(device_filename)`\"" = "\"$(message)\"" \
-		|| (echo "!! The message is not equal to $(message)."; exit 5) \
-		&& (echo ">> The message is equal to what was expected.")
+	$(call test_file_exists,$(device_filename), "-c")
+	$(call test_compare_values,"\"`head -n 1 $(device_filename)`\"","=","\"$(message)\"")
 	@sudo rm $(device_filename)
 	@sudo rmmod $(module_filename)
 
 test-memory:
-	$(info >> Testing module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(info Running additional tests for module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
-	$(eval module_filename = lkm_mem.ko)
-	$(eval mem_proc_buffer_file = /proc/lkm/mem/buffer)
-	$(eval mem_proc_free_file = /proc/lkm/mem/free)
-	$(eval mem_proc_shared_file = /proc/lkm/mem/shared)
-	$(eval mem_proc_total_file = /proc/lkm/mem/total)
-	$(eval swap_proc_free_file = /proc/lkm/swap/free)
-	$(eval swap_proc_total_file = /proc/lkm/swap/total)
+	$(eval module = lkm_mem)
 	
-
-	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 1)
-	@sudo insmod $(module_filename)
-
-	@test -f $(mem_proc_buffer_file) \
-		|| (echo "!! The /proc file $(mem_proc_buffer_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(mem_proc_buffer_file)."
-	@test `cat $(mem_proc_buffer_file)` -gt 0 \
-		|| (echo "!! The free memory read from $(mem_proc_buffer_file) is `cat $(mem_proc_buffer_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The free memory read from $(mem_proc_buffer_file) is `cat $(mem_proc_buffer_file)` and looks okay."
-	
-	@test -f $(mem_proc_free_file) \
-		|| (echo "!! The /proc file $(mem_proc_free_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(mem_proc_free_file)."
-	@test `cat $(mem_proc_free_file)` -gt 0 \
-		|| (echo "!! The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The free memory read from $(mem_proc_free_file) is `cat $(mem_proc_free_file)` and looks okay."
-
-	@test -f $(mem_proc_shared_file) \
-		|| (echo "!! The /proc file $(mem_proc_shared_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(mem_proc_shared_file)."
-	@test `cat $(mem_proc_shared_file)` -gt 0 \
-		|| (echo "!! The free memory read from $(mem_proc_shared_file) is `cat $(mem_proc_shared_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The free memory read from $(mem_proc_shared_file) is `cat $(mem_proc_shared_file)` and looks okay."
-
-	@test -f $(mem_proc_total_file) \
-		|| (echo "!! The /proc file $(mem_proc_total_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(mem_proc_total_file)."
-	@test `cat $(mem_proc_total_file)` -gt 0 \
-		|| (echo "!! The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and less than 0, something can not be right."; exit 3) \
-		&& echo ">> The total memory read from $(mem_proc_total_file) is `cat $(mem_proc_total_file)` and looks okay."
-
-	@test -f $(swap_proc_free_file) \
-		|| (echo "!! The /proc file $(swap_proc_free_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(swap_proc_free_file)."
-
-	@test -f $(swap_proc_total_file) \
-		|| (echo "!! The /proc file $(swap_proc_total_file) could not be found."; exit 2) \
-		&& echo ">> Found /proc file $(swap_proc_total_file)."
+	$(call test_module_exists,$(module))
+	$(call load_module,$(module))
+	$(call test_module_loaded,$(module))
+	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/buffer")
+	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/free")
+	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/shared")
+	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/total")
+	$(call test_proc_file_readable,"/proc/lkm/swap/free")
+	$(call test_proc_file_readable,"/proc/lkm/swap/total")
 
 	@sudo rmmod $(module_filename)
 
 test-parameters:
+	$(info Running additional tests for 'lkm_parameters' by loading and checking parameters in /sys filesystem)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+
 	$(eval module = lkm_parameters)
 	$(eval number = 22)
 	$(eval message = I am a Makefile)
 
-	$(info >> Additional testing module 'lkm_parameters' by loading and checking parameters in /sys filesystem)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
-
-	$(eval filename = ${module}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	@sudo insmod $(filename) number=$(number) message=\"$(message)\"
-	@test "`cat /sys/module/$(module)/parameters/number`" -eq $(number) \
-		|| (echo "!! The parameter 'number' is unequal $(number)."; exit 3) \
-		&& echo "Passed parameter 'number' is equal to $(number)."
-	@test "\"`cat /sys/module/$(module)/parameters/message`\"" = "\"$(message)\"" \
-		|| (echo "!! The parameter 'message' is unequal $(message)."; exit 3) \
-		&& echo "Passed parameter 'message' is equal to $(message)."
-	@sudo rmmod $(filename)
+	$(call test_module_exists,$(module))
+	@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+	$(call test_compare_values,`cat /sys/module/$(module)/parameters/number`,"-eq",$(number))
+	$(call test_compare_values,"\"`cat /sys/module/$(module)/parameters/message`\"","=","\"$(message)\"")
+	@sudo rmmod $(module)
 
 test-proc:
-	$(eval proc_module = lkm_proc)
-	$(eval proc_file = /proc/$(proc_module))
+	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
+	$(info Root permissions are needed for loading/unloading with insmod/rmmod)
 
-	$(info >> Additional testing module 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
-	$(info >> Root permissions are needed for loading/unloading with insmod/rmmod)
-	
-	$(eval filename = ${proc_module}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	
-	@sudo insmod ${filename}
-	@test -f $(proc_file) && echo ">> The file $(proc_file) exists." || (echo "!! The file $(proc_file) does not exists."; exit 3)
-	@cat $(proc_file)
-	@sudo rmmod ${filename}
+	$(eval module = lkm_proc)
+	$(eval proc_file = /proc/$(module))
+	$(eval proc_file_content = Hello, /proc!)
+
+	$(call test_module_exists,$(module))
+	$(call load_module,$(module))
+	$(call test_proc_file_readable,$(proc_file))
+	$(call test_compare_values,"\"`cat $(proc_file)`\"","=","\"$(proc_file_content)\"")
+	@sudo rmmod ${module}
 
 #
 # Miscellaneous targets
 # 
+
+test-tests:
+	$(eval module=lkm_sandbox)
+
+	$(call test_file_exists,Makefile)
+	$(call test_file_readable,Makefile)
+	$(call test_module_exists,lkm_sandbox)
+	@sudo insmod $(module).ko
+	$(call load_module,$(module))
+	$(call test_module_loaded,lkm_sandbox)
+	@sudo rmmod $(module)
+	$(call test_compare_values,42,"-eq",42)
+	$(call test_compare_values,"foo","=","foo")
 
 license:
 	@echo -e " LKM Sandbox::Make\n\n \

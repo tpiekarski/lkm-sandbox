@@ -36,6 +36,7 @@ clean:
 
 test:
 	$(info Running all available tests)
+	@$(MAKE) test-tests
 	@$(MAKE) test-module name=lkm_device
 	@$(MAKE) test-module name=lkm_mem
 	@$(MAKE) test-module name=lkm_parameters
@@ -47,6 +48,7 @@ test:
 	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
+	
 	@echo "All test targets have run successfully."
 
 #
@@ -54,55 +56,36 @@ test:
 #
 
 test-module:
-	$(info >> Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
-	
-	@test ${name} || (echo "!! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
-	$(eval filename = ${name}.ko)
-	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
-	
-	@sudo dmesg --clear
-	@sudo insmod ${filename}
-	@sudo rmmod ${filename}
-	@dmesg
-
-test-functions:
-	$(call test_file_exists)
-	$(call test_module_exists)
-	$(call test_value_is_greater_zero)
-	$(call test_value_is_equal)
+	$(info Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(call test_module_exists,$(name))
+	$(call test_module,$(name).ko)
 
 #
 # Targets for additional concept-based module tests
 #
 
 test-device:
-	$(info >> Additional testing module 'lkm_device' by loading, accessing major device number in /proc and creating device)
-	$(info >> Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
+	$(info Running additional tests for module 'lkm_device' by loading, accessing major device number in /proc and creating device)
+	$(info Root permissions are needed for loading/unloading module with insmod/rmmod and creating device with mknod)
 
-	$(eval module_filename = lkm_device.ko)
+	$(eval module = lkm_device)
 	$(eval proc_filename = /proc/lkm_device_major)
 	$(eval device_filename = /dev/lkm_device)
 	$(eval message = Hello, Linux!)
 
-	@test -f $(module_filename) || (echo "!! The module $(filename) could not be found. Did you forgot to run make?"; exit 2)
+	$(call test_module_exists,$(module))
 	@sudo insmod $(module_filename)
-	@test -f ${proc_filename} \
-		|| (echo "!! The /proc file containing devices major number could not be found."; exit 3) \
-		&& echo ">> Found /proc file for accessing devices major number"
+	$(call test_file_exists,$(proc_filename),"-f")
 	@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-	@test -c $(device_filename) \
-		|| (echo "!! Failed creating device file $(device_filename)."; exit 4) \
-		&& echo ">> Successfully created device $(device_filename)."
-	@test "\"`head -n 1 $(device_filename)`\"" = "\"$(message)\"" \
-		|| (echo "!! The message is not equal to $(message)."; exit 5) \
-		&& (echo ">> The message is equal to what was expected.")
+	$(call test_file_exists,$(device_filename), "-c")
+	$(call test_value_is_equal,"\"`head -n 1 $(device_filename)`\"","\"$(message)\"")
 	@sudo rm $(device_filename)
 	@sudo rmmod $(module_filename)
 
 test-memory:
-	$(info >> Testing module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(info Running additional tests for module 'lkm_mem' by loading and accessing exposed memory and swap information in /proc)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
 	$(eval module_filename = lkm_mem.ko)
 	$(eval mem_proc_buffer_file = /proc/lkm/mem/buffer)
@@ -159,8 +142,8 @@ test-parameters:
 	$(eval number = 22)
 	$(eval message = I am a Makefile)
 
-	$(info >> Additional testing module 'lkm_parameters' by loading and checking parameters in /sys filesystem)
-	$(info >> Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
+	$(info Running additional tests for 'lkm_parameters' by loading and checking parameters in /sys filesystem)
+	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 
 	$(eval filename = ${module}.ko)
 	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
@@ -177,8 +160,8 @@ test-proc:
 	$(eval proc_module = lkm_proc)
 	$(eval proc_file = /proc/$(proc_module))
 
-	$(info >> Additional testing module 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
-	$(info >> Root permissions are needed for loading/unloading with insmod/rmmod)
+	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
+	$(info Root permissions are needed for loading/unloading with insmod/rmmod)
 	
 	$(eval filename = ${proc_module}.ko)
 	@test -f ${filename} || (echo "!! The module ${filename} could not be found. Did you forgot to run make?"; exit 2)
@@ -191,6 +174,15 @@ test-proc:
 #
 # Miscellaneous targets
 # 
+
+test-tests:
+	$(call test_file_exists,Makefile)
+	$(call test_file_readable,Makefile)
+	$(call test_module_exists,lkm_sandbox)
+	@sudo insmod lkm_sandbox.ko
+	$(call test_module_loaded,lkm_sandbox)
+	@sudo rmmod lkm_sandbox
+	$(call test_value_is_equal,42,42)
 
 license:
 	@echo -e " LKM Sandbox::Make\n\n \

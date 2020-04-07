@@ -22,17 +22,61 @@
 #
 
 define test_file_exists
-	@echo "function: test_file_exists"
+	@echo "Testing if file $(1) exists."
+	@test $(2) $(1) \
+		&& echo "  >> The file $(1) exists." \
+		|| (echo "  !! The file $(1) could not be found."; exit 2)
+endef
+
+define test_file_readable
+	@echo "Testing if file $(1) is readable."
+	@test -r $(1) \
+		&& echo "  >> The file $(1) is readable." \
+		|| (echo "  !! The file $(1) is not readable"; exit 2)
 endef
 
 define test_module_exists
-	@echo "function: test_module_exists"
+	@echo "Testing if the module $(1) exists."
+	@test ${1} \
+		|| (echo "  !! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
+
+	$(eval module_filename = $(1).ko)
+	@test -f $(module_filename) \
+		&& echo "  >> The module $(1) exists, the file $(module_filename) has been found." \
+		|| (echo "  !! The module $(1) could not be found. Did you forgot to run make?"; exit 2)
 endef
 
 define test_value_is_greater_zero
-	@echo "function: test_value_is_greater_zero"
+	@echo "Testing if value $(1) is greater than zero."
+	# todo: implement test
+	@echo "Not yet implemented"
 endef
 
 define test_value_is_equal
-	@echo "function: test_value_is_equal"
+	@echo "Testing if two values are equal."
+	@test $(1) = $(2) \
+	|| (echo "  !! The value is not equal to $(message)."; exit 5) \
+	&& (echo "  >> The value is equal to what was expected.")
+endef
+
+# Prefered solution using awk instead of sed (doesn't work atm)
+#@echo "awk '{print $$1}'"
+#@lsmod | awk '{print $$1}' | grep -qE "\"^$(1)$$\"" && echo "Module $(1) is loaded." || echo "Module $(1) is not loaded."
+define test_module_loaded
+@echo "Testing if module $(1) was loaded."
+@lsmod | sed 's% .*$$%%g' | grep -qE "^$(1)$$" \
+	&& echo "  >> Module $(1) is loaded." \
+	|| echo "  !! Module $(1) is not loaded."
+endef
+
+define test_module
+	@sudo dmesg --clear
+	@sudo insmod $(1)
+	$(call test_module_loaded,$(1))
+	@sudo rmmod $(1)
+	@dmesg
+endef
+
+define load_module
+
 endef

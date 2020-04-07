@@ -75,7 +75,7 @@ test-device:
 	$(eval message = Hello, Linux!)
 
 	$(call test_module_exists,$(module))
-	@sudo insmod $(module_filename)
+	$(call load_module,$(module))
 	$(call test_file_exists,$(proc_filename),"-f")
 	@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
 	$(call test_file_exists,$(device_filename), "-c")
@@ -90,7 +90,7 @@ test-memory:
 	$(eval module = lkm_mem)
 	
 	$(call test_module_exists,$(module))
-	@sudo insmod $(module_filename)
+	$(call load_module,$(module))
 	$(call test_module_loaded,$(module))
 	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/buffer")
 	$(call test_proc_file_content_greater_than_zero,"/proc/lkm/mem/free")
@@ -124,7 +124,7 @@ test-proc:
 	$(eval proc_file_content = Hello, /proc!)
 
 	$(call test_module_exists,$(module))
-	@sudo insmod $(module).ko
+	$(call load_module,$(module))
 	$(call test_proc_file_readable,$(proc_file))
 	$(call test_compare_values,"\"`cat $(proc_file)`\"","=","\"$(proc_file_content)\"")
 	@sudo rmmod ${module}
@@ -134,12 +134,15 @@ test-proc:
 # 
 
 test-tests:
+	$(eval module=lkm_sandbox)
+
 	$(call test_file_exists,Makefile)
 	$(call test_file_readable,Makefile)
 	$(call test_module_exists,lkm_sandbox)
-	@sudo insmod lkm_sandbox.ko
+	@sudo insmod $(module).ko
+	$(call load_module,$(module))
 	$(call test_module_loaded,lkm_sandbox)
-	@sudo rmmod lkm_sandbox
+	@sudo rmmod $(module)
 	$(call test_compare_values,42,"-eq",42)
 	$(call test_compare_values,"foo","=","foo")
 

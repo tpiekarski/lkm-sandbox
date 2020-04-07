@@ -21,54 +21,59 @@
 # 
 #
 
+INVALID_ARGUMENTS = 1
+BUILD_ERROR = 2
+COMPARISON_ERROR = 3
+
+# Don't break line @lsmod... with backslashes, grep will fail for unknown reason.
+define load_module
+	@echo "Loading module $(1)"
+	@lsmod | awk '{print $$1}' | grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) || sudo insmod $(1).ko
+endef
+
 define test_file_exists
 	@echo "Testing if file $(1) exists."
 	@test $(2) $(1) \
-		&& echo "  >> The file $(1) exists." \
-		|| (echo "  !! The file $(1) could not be found."; exit 2)
+		|| (echo "  !! The file $(1) could not be found."; exit $(BUILD_ERROR))
 endef
 
 define test_file_readable
 	@echo "Testing if file $(1) is readable."
 	@test -r $(1) \
-		&& echo "  >> The file $(1) is readable." \
-		|| (echo "  !! The file $(1) is not readable"; exit 2)
+		|| (echo "  !! The file $(1) is not readable"; exit $(BUILD_ERROR))
 endef
 
 define test_module_exists
 	@echo "Testing if the module $(1) exists."
 	@test ${1} \
-		|| (echo "  !! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit 1)
+		|| (echo "  !! Please provide a valid module name to test, like 'make test name=lkm_sandbox'."; exit $(INVALID_ARGUMENTS))
 
 	$(eval module_filename = $(1).ko)
 	@test -f $(module_filename) \
-		&& echo "  >> The module $(1) exists, the file $(module_filename) has been found." \
-		|| (echo "  !! The module $(1) could not be found. Did you forgot to run make?"; exit 2)
+		|| (echo "  !! The module $(1) could not be found. Did you forgot to run make?"; exit $(BUILD_ERROR))
 endef
 
 define test_value_is_greater_zero
 	@echo "Testing if value $(1) is greater than zero."
 	@test $(1) -gt 0 \
-		|| (echo "  !! Provided value, $(1) is not greater than zero."; exit 1) \
-		&& (echo "  >> Provided value, $(1) is greater than zero")
+		|| (echo "  !! Provided value, $(1) is not greater than zero."; exit $(COMPARISON_ERROR))
 endef
 
 define test_compare_values
 	@echo "Comparing '$(1)' $(2) ' $(3)'."
 	@test $(1) $(2) $(3) \
-		|| (echo "  !! Comparison failed values have been '$(1)' and '$(3)'."; exit 5)
+		|| (echo "  !! Comparison failed values have been '$(1)' and '$(3)'."; exit $(COMPARISON_ERROR))
 endef
 
 define test_module_loaded
 	@echo "Testing if module $(1) was loaded."
 	@lsmod | awk '{print $$1}' | grep -qE "^$(1)$$"  \
-		&& echo "  >> Module $(1) is loaded." \
-		|| echo "  !! Module $(1) is not loaded."
+		|| (echo "  !! Module $(1) is not loaded."; exit $(BUILD_ERROR))
 endef
 
 define test_module
 	@sudo dmesg --clear
-	@sudo insmod $(1).ko
+	$(call load_module,$(1))
 	$(call test_module_loaded,$(1))
 	@sudo rmmod $(1)
 	@dmesg
@@ -83,8 +88,4 @@ endef
 define test_proc_file_readable
 	$(call test_file_exists,$(1), "-f")
 	$(call test_file_readable,$(1))
-endef
-
-define load_module
-
 endef

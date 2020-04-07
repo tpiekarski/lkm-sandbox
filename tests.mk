@@ -59,19 +59,16 @@ define test_value_is_equal
 	&& (echo "  >> The value is equal to what was expected.")
 endef
 
-# Prefered solution using awk instead of sed (doesn't work atm)
-#@echo "awk '{print $$1}'"
-#@lsmod | awk '{print $$1}' | grep -qE "\"^$(1)$$\"" && echo "Module $(1) is loaded." || echo "Module $(1) is not loaded."
 define test_module_loaded
 @echo "Testing if module $(1) was loaded."
-@lsmod | sed 's% .*$$%%g' | grep -qE "^$(1)$$" \
+@lsmod | awk '{print $$1}' | grep -qE "^$(1)$$"  \
 	&& echo "  >> Module $(1) is loaded." \
 	|| echo "  !! Module $(1) is not loaded."
 endef
 
 define test_module
 	@sudo dmesg --clear
-	@sudo insmod $(1)
+	@sudo insmod $(1).ko
 	$(call test_module_loaded,$(1))
 	@sudo rmmod $(1)
 	@dmesg

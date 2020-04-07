@@ -48,7 +48,7 @@ test:
 	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
-	
+
 	@echo "All test targets have run successfully."
 
 #
@@ -59,7 +59,7 @@ test-module:
 	$(info Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
 	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 	$(call test_module_exists,$(name))
-	$(call test_module,$(name).ko)
+	$(call test_module,$(name))
 
 #
 # Targets for additional concept-based module tests

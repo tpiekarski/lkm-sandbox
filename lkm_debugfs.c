@@ -33,16 +33,19 @@ MODULE_DESCRIPTION("Module for accessing the debug filesystem");
 MODULE_VERSION("0.1");
 
 #define LKM_DEBUGFS_DIR "lkm"
-#define LKM_CONTENT_LEN 200
+#define LKM_DEBUGFS_CONTENT_LEN 200
+#define LKM_DEBUGFS_PERMISSION 0644
 
 static ssize_t debug_read(struct file *fp, char *buffer, size_t count,
 			  loff_t *position);
 static ssize_t debug_write(struct file *fp, const char *buffer, size_t count,
 			   loff_t *position);
 
-char content[LKM_CONTENT_LEN];
+char content[LKM_DEBUGFS_CONTENT_LEN];
 static struct dentry *debug_root;
-static struct dentry *debug_entry;
+static struct dentry *debug_file_entry;
+static u64 value;
+static int file_value;
 
 static const struct file_operations fops = { .owner = THIS_MODULE,
 					     .read = debug_read,
@@ -51,18 +54,18 @@ static const struct file_operations fops = { .owner = THIS_MODULE,
 static ssize_t debug_read(struct file *fp, char *buffer, size_t count,
 			  loff_t *position)
 {
-	return simple_read_from_buffer(buffer, LKM_CONTENT_LEN, position,
-				       content, count);
+	return simple_read_from_buffer(buffer, count, position, content,
+				       LKM_DEBUGFS_CONTENT_LEN);
 }
 static ssize_t debug_write(struct file *fp, const char *buffer, size_t count,
 			   loff_t *position)
 {
-	if (count > LKM_CONTENT_LEN) {
+	if (count > LKM_DEBUGFS_CONTENT_LEN) {
 		return -EINVAL;
 	}
 
-	return simple_write_to_buffer(content, LKM_CONTENT_LEN, position,
-				      buffer, count);
+	return simple_write_to_buffer(content, LKM_DEBUGFS_CONTENT_LEN,
+				      position, buffer, count);
 }
 
 static int __init lkm_debugfs_init(void)
@@ -87,6 +90,20 @@ static int __init lkm_debugfs_init(void)
 		return -ENODEV;
 	}
 
+	value = 42;
+	debugfs_create_u64("value", LKM_DEBUGFS_PERMISSION, debug_root, &value);
+
+	debug_file_entry =
+		debugfs_create_file("message", LKM_DEBUGFS_PERMISSION,
+				    debug_root, &file_value, &fops);
+
+	if (debug_file_entry == NULL) {
+		printk(KERN_ERR "%s: Failed creating file.\n",
+		       THIS_MODULE->name);
+
+		return -EIO;
+	}
+
 	return 0;
 }
 
@@ -96,7 +113,7 @@ static void __exit lkm_debugfs_exit(void)
 
 	if (debug_root != NULL) {
 		debugfs_remove_recursive(debug_root);
-		debug_entry = NULL;
+		debug_file_entry = NULL;
 		debug_root = NULL;
 	}
 }

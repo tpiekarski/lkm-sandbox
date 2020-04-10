@@ -33,7 +33,7 @@ endef
 
 define test_file_exists
 	@echo "Testing if file $(1) exists."
-	@test $(2) $(1) \
+	@$(3) test $(2) $(1) \
 		|| (echo "  !! The file $(1) could not be found."; exit $(BUILD_ERROR))
 endef
 

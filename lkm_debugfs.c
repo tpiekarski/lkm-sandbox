@@ -1,5 +1,5 @@
 /*
- * LKM Sandbox::DebugFS
+ * LKM Sandbox::Debug Filesystem
  * <https://github.com/tpiekarski/lkm-sandbox>
  * ---
  * Copyright 2020 Thomas Piekarski <t.piekarski@deloquencia.de>
@@ -45,7 +45,7 @@ static ssize_t debug_write(struct file *fp, const char *buffer, size_t count,
 char content[LKM_DEBUGFS_CONTENT_LEN];
 static struct dentry *debug_root;
 static struct dentry *debug_file_entry;
-static u64 value;
+static u64 number;
 static int file_value;
 
 static const struct file_operations fops = { .owner = THIS_MODULE,
@@ -91,8 +91,9 @@ static int __init lkm_debugfs_init(void)
 		return -ENODEV;
 	}
 
-	value = 42;
-	debugfs_create_u64("value", LKM_DEBUGFS_PERMISSION, debug_root, &value);
+	number = 42;
+	debugfs_create_u64("number", LKM_DEBUGFS_PERMISSION, debug_root,
+			   &number);
 
 	debug_file_entry =
 		debugfs_create_file("message", LKM_DEBUGFS_PERMISSION,

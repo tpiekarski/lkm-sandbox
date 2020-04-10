@@ -45,6 +45,7 @@ test:
 	@$(MAKE) test-module name=lkm_process
 	@$(MAKE) test-module name=lkm_sandbox
 	@$(MAKE) test-module name=lkm_skeleton
+	@$(MAKE) test-debugfs
 	@$(MAKE) test-device
 	@$(MAKE) test-memory
 	@$(MAKE) test-parameters
@@ -57,7 +58,7 @@ test:
 #
 
 test-module:
-	$(info Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer...)
+	$(info Testing module '$(name)' by loading and displaying Kernel Message Ring Buffer)
 	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 	$(call test_module_exists,$(name))
 	$(call test_module,$(name))
@@ -65,6 +66,29 @@ test-module:
 #
 # Targets for additional concept-based module tests
 #
+
+test-debugfs:
+	$(info Running additional tests for module 'lkm_debugfs' by loading, and testing both files in debugfs)
+	$(info Root permissions are needed for loading/unloading module with insmod/rmmod and accessing /sys/kernel/debug)
+
+	$(eval module = lkm_debugfs)
+	$(eval number_file = /sys/kernel/debug/lkm/number)
+	$(eval message_file = /sys/kernel/debug/lkm/message)
+	$(eval message = Hello, debugfs!)
+	$(eval number = 42)
+
+	$(call test_module_exists,$(module))
+	$(call load_module,$(module))
+
+	$(call test_file_exists,$(number_file),"-r", "sudo")
+	$(eval number_file_content = `sudo cat $(number_file)`)
+	$(call test_compare_values,$(number_file_content),"-eq",$(number))
+
+	$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+	$(call test_file_exists,$(message_file),"-r", "sudo")
+	$(call test_compare_values,"\"$(message_file_content)\"","=","\"$(message)\"")
+
+	@sudo rmmod $(module_filename)
 
 test-device:
 	$(info Running additional tests for module 'lkm_device' by loading, accessing major device number in /proc and creating device)
@@ -117,7 +141,7 @@ test-parameters:
 	@sudo rmmod $(module)
 
 test-proc:
-	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)'...)
+	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)')
 	$(info Root permissions are needed for loading/unloading with insmod/rmmod)
 
 	$(eval module = lkm_proc)

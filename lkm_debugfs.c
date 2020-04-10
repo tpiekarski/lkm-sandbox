@@ -21,6 +21,7 @@
  * 
  */
 
+#include <linux/debugfs.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -30,10 +31,31 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Module for accessing the debug filesystem");
 MODULE_VERSION("0.1");
 
+#define LKM_DEBUGFS_DIR "lkm"
+
+static struct dentry *debug_root;
+
 static int __init lkm_debugfs_init(void)
 {
 	printk(KERN_INFO "%s: Entering debugfs and looking around.\n",
 	       THIS_MODULE->name);
+
+	if (!debugfs_initialized()) {
+		printk(KERN_ERR "%s: debugfs is not initialized.\n",
+		       THIS_MODULE->name);
+
+		return -ENODEV;
+	}
+
+	debug_root = debugfs_create_dir(LKM_DEBUGFS_DIR, NULL);
+
+	if (debug_root == NULL) {
+		printk(KERN_ERR
+		       "%s: Failed creating directory %s in debugfs.\n",
+		       THIS_MODULE->name, LKM_DEBUGFS_DIR);
+
+		return -ENODEV;
+	}
 
 	return 0;
 }
@@ -41,6 +63,11 @@ static int __init lkm_debugfs_init(void)
 static void __exit lkm_debugfs_exit(void)
 {
 	printk(KERN_INFO "%s: Leaving debugfs.\n", THIS_MODULE->name);
+
+	if (debug_root != NULL) {
+		debugfs_remove_recursive(debug_root);
+		debug_root = NULL;
+	}
 }
 
 module_init(lkm_debugfs_init);

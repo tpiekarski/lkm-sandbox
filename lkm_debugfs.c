@@ -26,6 +26,7 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/string.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
@@ -96,6 +97,8 @@ static int __init lkm_debugfs_init(void)
 	debug_file_entry =
 		debugfs_create_file("message", LKM_DEBUGFS_PERMISSION,
 				    debug_root, &file_value, &fops);
+
+	strncpy(content, "Hello, debugfs!\n\0", LKM_DEBUGFS_CONTENT_LEN);
 
 	if (debug_file_entry == NULL) {
 		printk(KERN_ERR "%s: Failed creating file.\n",

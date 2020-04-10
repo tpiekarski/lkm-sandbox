@@ -21,13 +21,14 @@ I hope it can be valuable for other developers which try to approach the Linux K
 
 No.|Module|Source|Description
 ---|---|---|---
-1|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
-2|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
-3|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
-4|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-5|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
-6|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-7|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+1|LKM DebugFS|[lkm_debugfs.c](lkm_debugfs.c)|Module showing how to use the debugging filesystem
+2|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
+3|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
+4|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
+5|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+6|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
+7|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+8|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
 
 ## [Building](#building)
 
@@ -130,7 +131,9 @@ than operates in a sequential pattern."
 - Developers Area, [Kernel Module Parameters](https://devarea.com/linux-kernel-development-kernel-module-parameters/) by [Liran B.H](https://devarea.com/author/liran/)
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
 - Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
+- Linux Kernel Mailinglist, [[RFC PATCH] debugfs - yet another in-kernel file system](https://lkml.org/lkml/2004/12/9/202) by Greg Kroah-Hartman
 - Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
+- Open source for you, [Debugging the Linux Kernel with debugfs](https://opensourceforu.com/2010/10/debugging-linux-kernel-with-debugfs/) by [Surya Prabhakar](https://opensourceforu.com/author/surya-prabhakar/)
 - Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac
 - Stackoverflow, [Is there a C function like sprintf in the Linux kernel?](https://stackoverflow.com/questions/12264291/is-there-a-c-function-like-sprintf-in-the-linux-kernel)
 - Stackoverflow, [sprintf function's buffer overflow?](https://stackoverflow.com/questions/4282281/sprintf-functions-buffer-overflow)

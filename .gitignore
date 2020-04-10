@@ -8,3 +8,6 @@
 # Meta Files
 Module.symvers
 modules.order
+
+# Miscellaneous files
+*.code-workspace

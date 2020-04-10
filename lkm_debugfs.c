@@ -22,6 +22,7 @@
  */
 
 #include <linux/debugfs.h>
+#include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -32,8 +33,37 @@ MODULE_DESCRIPTION("Module for accessing the debug filesystem");
 MODULE_VERSION("0.1");
 
 #define LKM_DEBUGFS_DIR "lkm"
+#define LKM_CONTENT_LEN 200
 
+static ssize_t debug_read(struct file *fp, char *buffer, size_t count,
+			  loff_t *position);
+static ssize_t debug_write(struct file *fp, const char *buffer, size_t count,
+			   loff_t *position);
+
+char content[LKM_CONTENT_LEN];
 static struct dentry *debug_root;
+static struct dentry *debug_entry;
+
+static const struct file_operations fops = { .owner = THIS_MODULE,
+					     .read = debug_read,
+					     .write = debug_write };
+
+static ssize_t debug_read(struct file *fp, char *buffer, size_t count,
+			  loff_t *position)
+{
+	return simple_read_from_buffer(buffer, LKM_CONTENT_LEN, position,
+				       content, count);
+}
+static ssize_t debug_write(struct file *fp, const char *buffer, size_t count,
+			   loff_t *position)
+{
+	if (count > LKM_CONTENT_LEN) {
+		return -EINVAL;
+	}
+
+	return simple_write_to_buffer(content, LKM_CONTENT_LEN, position,
+				      buffer, count);
+}
 
 static int __init lkm_debugfs_init(void)
 {
@@ -66,6 +96,7 @@ static void __exit lkm_debugfs_exit(void)
 
 	if (debug_root != NULL) {
 		debugfs_remove_recursive(debug_root);
+		debug_entry = NULL;
 		debug_root = NULL;
 	}
 }

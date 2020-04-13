@@ -4,7 +4,8 @@
 
 ## [Overview](#overview)
 
-[Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [License](#license) / [Notes](#notes) / [Books](#books) / [Links](#links)
+[Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [Disclaimer](#disclaimer) /
+ [License](#license) / [Notes](#notes) / [Books](#books) / [Links](#links)
 
 The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
@@ -93,7 +94,7 @@ sudo rmmod lkm_parameters
 
 ![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
 
-## Disclaimer
+## [Disclaimer](#disclaimer)
 
 This repository will ask you for root permission, because certain operations like loading/unloading modules and
 accessing files in the Linux/GNU System depends on root privileges. The Makefile will state beforehand for what

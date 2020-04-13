@@ -8,6 +8,14 @@
         ],
         "editor.tabSize": 8
     },
+    "[markdown]": {
+        "editor.detectIndentation": false,
+        "editor.insertSpaces": true,
+        "editor.rulers": [
+            120
+        ],
+        "editor.tabSize": 2
+    },
     "C_Cpp.clang_format_sortIncludes": true,
     "C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

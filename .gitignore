@@ -11,3 +11,4 @@ modules.order
 
 # Miscellaneous files
 *.code-workspace
+*.log

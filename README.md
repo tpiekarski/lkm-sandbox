@@ -93,6 +93,45 @@ sudo rmmod lkm_parameters
 
 ![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
 
+## Disclaimer
+
+This repository will ask you for root permission, because certain operations like loading/unloading modules and
+accessing files in the Linux/GNU System depends on root privileges. The Makefile will state beforehand for what
+these permissions will be used.
+
+You can review all this operations by searching this repository for sudo and be sure that this won't be misused in
+any way. I am aware of that this can be a security issue, but I am trying to make this process as much transparent
+as possible. But be also aware that these modules are coming without any warranty. Kernel panics and data loss can
+happen, please use them preferably inside a Virtual Machine.
+
+### Use of sudo
+
+In the following is a table with all locations where sudo is used (except the README.md).
+
+```sh
+grep -n -r "sudo" *
+```
+
+File:Line|Use of sudo
+---|---
+[Makefile:83](Makefile#L83)|$(call test_file_exists,$(number_file),"-r", "sudo")
+[Makefile:84](Makefile#L84)|$(eval number_file_content = `sudo cat $(number_file)`)
+[Makefile:87](Makefile#L87)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+[Makefile:88](Makefile#L88)|$(call test_file_exists,$(message_file),"-r", "sudo")
+[Makefile:91](Makefile#L91)|@sudo rmmod $(module_filename)
+[Makefile:105](Makefile#L105)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+[Makefile:108](Makefile#L108)|@sudo rm $(device_filename)
+[Makefile:109](Makefile#L109)|@sudo rmmod $(module_filename)
+[Makefile:127](Makefile#L127)|@sudo rmmod $(module_filename)
+[Makefile:138](Makefile#L138)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:141](Makefile#L141)|@sudo rmmod $(module)
+[Makefile:155](Makefile#L155)|@sudo rmmod ${module}
+[Makefile:167](Makefile#L167)|@sudo insmod $(module).ko
+[Makefile:170](Makefile#L170)|@sudo rmmod $(module)
+[tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko
+[tests.mk:75](tests.mk#L75)|@sudo dmesg --clear
+[tests.mk:78](tests.mk#L78)|@sudo rmmod $(1)
+
 ## [License](#license)
 
 LKM Sandbox is free software: you can redistribute it and/or modify

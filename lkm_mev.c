@@ -21,6 +21,7 @@
  * 
  */
 
+#include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -30,16 +31,53 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Driver for memory-based character devices");
 MODULE_VERSION("0.1");
 
+#define LKM_MEV_DEVICE_NAME "mev"
+#define LKM_MEV_DEVICE_COUNT 1
+#define LKM_MEV_DEVICE_MINOR 0
+
+static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+static int mev_open(struct inode *inode, struct file *file);
+static int mev_release(struct inode *inode, struct file *file);
+static loff_t mev_llseek(struct file *file, loff_t offset, int whence);
+static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
+			loff_t *ppos);
+static ssize_t mev_write(struct file *file, const char __user *buf,
+			 size_t count, loff_t *ppos);
+
+static dev_t mev_device;
+static struct file_operations mev_fops = {
+	.owner = THIS_MODULE,
+	.llseek = mev_llseek,
+	.read = mev_read,
+	.write = mev_write,
+	// Using new ioctl and avoiding BKL (Big Kernel Lock)
+	// For details refer to: https://lwn.net/Articles/119652/
+	.unlocked_ioctl = mev_ioctl,
+	.open = mev_open,
+	.release = mev_release
+};
+
 static int __init lkm_mev_init(void)
 {
-	// todo: implement init function
+	int rc = alloc_chrdev_region(&mev_device, LKM_MEV_DEVICE_MINOR,
+				     LKM_MEV_DEVICE_COUNT, LKM_MEV_DEVICE_NAME);
+
+	if (rc < 0) {
+		printk(KERN_ERR
+		       "%s: Failed allocating major/minor for device '%s'.\n",
+		       THIS_MODULE->name, LKM_MEV_DEVICE_NAME);
+
+		return rc;
+	}
 
 	return 0;
 }
 
 static void __exit lkm_mev_exit(void)
 {
-	// todo: implement exit function
+	if (mev_device != 0) {
+		unregister_chrdev_region(mev_device, LKM_MEV_DEVICE_COUNT);
+	}
 }
 
 module_init(lkm_mev_init);

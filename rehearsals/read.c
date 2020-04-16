@@ -16,7 +16,7 @@ void read(FILE *fp)
 int main(int argc, char const *argv[])
 {
 	if (argc != 2) {
-		printf("usage: %s <filename>\n", *argv);
+		fprintf(stderr, "usage: %s <filename>\n", *argv);
 
 		exit(-EINVAL);
 	}
@@ -25,7 +25,8 @@ int main(int argc, char const *argv[])
 	FILE *fp = fopen(*(++argv), FILE_PERMISSION);
 
 	if (fp == NULL) {
-		printf("Failed opening file %s, aborting.\n", filename);
+		fprintf(stderr, "Failed opening file %s, aborting.\n",
+			filename);
 
 		exit(-ENOENT);
 	}

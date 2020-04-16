@@ -1,5 +1,5 @@
 /*
- * LKM Sandbox::Memory-based character device
+ * LKM Sandbox::Driver for memory-based character devices
  * <https://github.com/tpiekarski/lkm-sandbox>
  * ---
  * Copyright 2020 Thomas Piekarski <t.piekarski@deloquencia.de>
@@ -27,7 +27,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
-MODULE_DESCRIPTION("Driver for a memory-based character device");
+MODULE_DESCRIPTION("Driver for memory-based character devices");
 MODULE_VERSION("0.1");
 
 static int __init lkm_mev_init(void)

@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
 	}
 
 	const char *filename = argv[1];
-	FILE *fp = fopen(*(++argv), FILE_PERMISSION);
+	FILE *fp = fopen(filename, FILE_PERMISSION);
 
 	if (fp == NULL) {
 		fprintf(stderr, "Failed opening file %s, aborting.\n",

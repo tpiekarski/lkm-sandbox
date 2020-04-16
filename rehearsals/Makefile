@@ -31,6 +31,5 @@ all:
 	gcc -o $(REHEARSALS_BUILD)/read read.c
 	gcc -o $(REHEARSALS_BUILD)/write write.c
 
-
 clean:
 	@rm -f $(REHEARSALS_BUILD)/*

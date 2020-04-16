@@ -9,6 +9,9 @@
 Module.symvers
 modules.order
 
+# Rehearsals
+/rehearsals/build/*
+
 # Miscellaneous files
 *.code-workspace
 *.log

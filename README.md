@@ -5,7 +5,7 @@
 ## [Overview](#overview)
 
 [Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [Disclaimer](#disclaimer) /
- [License](#license) / [Notes](#notes) / [Books](#books) / [Links](#links)
+ [License](#license) / [Notes](#notes) / [Rehearsal](#rehearsal) / [Books](#books) / [Links](#links)
 
 The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
@@ -159,6 +159,21 @@ and unloading of your module, you’ll be writing code that responds to system e
 than operates in a sequential pattern."
 
 "With kernel development, you’re writing APIs, not applications themselves."
+
+## [Rehearsal](#rehearsal)
+
+For a better understanding of concepts in the kernelspace it is necessary to review and rehearse fundamental basics
+of C and the standard library. Next to being able to improve understanding it is possible to compare approaches.
+Most of those basics are low-level, starting with file I/O and can be looked through as a companion source.
+It is never bad to rehearse things, but sometimes a little embarrassing to admit having to rehearse such things :)
+
+File|Concept
+---|---
+[read.c](rehearsals/read.c)|Reading of files in vanilla C
+[write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
+
+To build those files just run ``make clean && make`` in `./rehearsals/` and all executables will be placed in
+the build directory.
 
 ## [Books](#books)
 

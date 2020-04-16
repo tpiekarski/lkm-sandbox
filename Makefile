@@ -25,14 +25,24 @@ SHELL:=/bin/bash
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ccflags-y := -Wall
 obj-m += lkm_debugfs.o lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
+REHEARSALS_SRC=./rehearsals
+REHEARSALS_BUILD=$(REHEARSALS_SRC)/build
 
 include $(SELF_DIR)/tests.mk
+
+.PHONY: rehearsals # Force targets to be re-made independent of depending files
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	@rm -f $(REHEARSALS_BUILD)/*
+
+rehearsals:
+	$(info Compiling all rehearsal source files in $(REHEARSALS_SRC), build directory $(REHEARSALS_BUILD))
+	gcc -o $(REHEARSALS_BUILD)/read $(REHEARSALS_SRC)/read.c
+	gcc -o $(REHEARSALS_BUILD)/write $(REHEARSALS_SRC)/write.c
 
 test:
 	$(info Running all available tests)

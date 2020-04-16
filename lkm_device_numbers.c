@@ -58,7 +58,7 @@ static int __init lkm_device_numbers_init(void)
 	rc = alloc_chrdev_region(&ddev, LKM_DYNAMIC_DEV_MINOR,
 				 LKM_DYNAMIC_DEV_COUNT, LKM_DYNAMIC_DEV_NAME);
 
-	if (rc) {
+	if (rc < 0) {
 		printk(KERN_ERR
 		       "%s: Failed allocation majors/minors for dynamic device.\n",
 		       THIS_MODULE->name);
@@ -73,7 +73,7 @@ static int __init lkm_device_numbers_init(void)
 	rc = register_chrdev_region(sdev, LKM_STATIC_DEV_COUNT,
 				    LKM_STATIC_DEV_NAME);
 
-	if (rc) {
+	if (rc < 0) {
 		printk(KERN_ERR "%s: Failed registering static device.\n",
 		       THIS_MODULE->name);
 

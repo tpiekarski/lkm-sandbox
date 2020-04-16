@@ -24,6 +24,7 @@ No.|Module|Source|Description
 ---|---|---|---
 1|LKM DebugFS|[lkm_debugfs.c](lkm_debugfs.c)|Module showing how to use the debugging filesystem
 2|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
+3|LKM Device Numbers|[lkm_device_numbers.c](lkm_device_numbers.c)|Illustrating statically and dynamically allocated device numbers
 3|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
 4|LKM Memory-based Device|[lkm_mev.c](lkm_mec.c)|Driver for a memory-based character device, based to some degree on scull, developed in the book [Linux Device Drivers](https://lwn.net/Kernel/LDD3/), Chapter 3
 5|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
@@ -116,20 +117,20 @@ grep -n -r "sudo" *
 
 File:Line|Use of sudo
 ---|---
-[Makefile:84](Makefile#L84)|$(call test_file_exists,$(number_file),"-r", "sudo")
-[Makefile:85](Makefile#L85)|$(eval number_file_content = `sudo cat $(number_file)`)
-[Makefile:88](Makefile#L88)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
-[Makefile:89](Makefile#L89)|$(call test_file_exists,$(message_file),"-r", "sudo")
-[Makefile:92](Makefile#L92)|@sudo rmmod $(module_filename)
-[Makefile:106](Makefile#L106)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-[Makefile:109](Makefile#L109)|@sudo rm $(device_filename)
-[Makefile:110](Makefile#L110)|@sudo rmmod $(module_filename)
-[Makefile:128](Makefile#L128)|@sudo rmmod $(module_filename)
-[Makefile:139](Makefile#L139)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
-[Makefile:142](Makefile#L142)|@sudo rmmod $(module)
-[Makefile:156](Makefile#L156)|@sudo rmmod ${module}
-[Makefile:168](Makefile#L168)|@sudo insmod $(module).ko
-[Makefile:171](Makefile#L171)|@sudo rmmod $(module)
+[Makefile:85](Makefile#L85)|$(call test_file_exists,$(number_file),"-r", "sudo")
+[Makefile:86](Makefile#L86)|$(eval number_file_content = `sudo cat $(number_file)`)
+[Makefile:89](Makefile#L89)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+[Makefile:90](Makefile#L90)|$(call test_file_exists,$(message_file),"-r", "sudo")
+[Makefile:93](Makefile#L93)|@sudo rmmod $(module_filename)
+[Makefile:107](Makefile#L107)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+[Makefile:110](Makefile#L110)|@sudo rm $(device_filename)
+[Makefile:111](Makefile#L111)|@sudo rmmod $(module_filename)
+[Makefile:129](Makefile#L129)|@sudo rmmod $(module_filename)
+[Makefile:140](Makefile#L140)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:143](Makefile#L143)|@sudo rmmod $(module)
+[Makefile:157](Makefile#L157)|@sudo rmmod ${module}
+[Makefile:169](Makefile#L169)|@sudo insmod $(module).ko
+[Makefile:172](Makefile#L172)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko
 [tests.mk:75](tests.mk#L75)|@sudo dmesg --clear
 [tests.mk:78](tests.mk#L78)|@sudo rmmod $(1)

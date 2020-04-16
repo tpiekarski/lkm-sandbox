@@ -25,11 +25,12 @@ No.|Module|Source|Description
 1|LKM DebugFS|[lkm_debugfs.c](lkm_debugfs.c)|Module showing how to use the debugging filesystem
 2|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
 3|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
-4|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
-5|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-6|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
-7|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-8|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+4|LKM Memory-based Device|[lkm_mev.c](lkm_mec.c)|Driver for a memory-based character device, based to some degree on scull, developed in the book [Linux Device Drivers](https://lwn.net/Kernel/LDD3/), Chapter 3
+5|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
+6|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+7|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
+8|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+9|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
 
 ## [Building](#building)
 
@@ -115,20 +116,20 @@ grep -n -r "sudo" *
 
 File:Line|Use of sudo
 ---|---
-[Makefile:83](Makefile#L83)|$(call test_file_exists,$(number_file),"-r", "sudo")
-[Makefile:84](Makefile#L84)|$(eval number_file_content = `sudo cat $(number_file)`)
-[Makefile:87](Makefile#L87)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
-[Makefile:88](Makefile#L88)|$(call test_file_exists,$(message_file),"-r", "sudo")
-[Makefile:91](Makefile#L91)|@sudo rmmod $(module_filename)
-[Makefile:105](Makefile#L105)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-[Makefile:108](Makefile#L108)|@sudo rm $(device_filename)
-[Makefile:109](Makefile#L109)|@sudo rmmod $(module_filename)
-[Makefile:127](Makefile#L127)|@sudo rmmod $(module_filename)
-[Makefile:138](Makefile#L138)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
-[Makefile:141](Makefile#L141)|@sudo rmmod $(module)
-[Makefile:155](Makefile#L155)|@sudo rmmod ${module}
-[Makefile:167](Makefile#L167)|@sudo insmod $(module).ko
-[Makefile:170](Makefile#L170)|@sudo rmmod $(module)
+[Makefile:84](Makefile#L84)|$(call test_file_exists,$(number_file),"-r", "sudo")
+[Makefile:85](Makefile#L85)|$(eval number_file_content = `sudo cat $(number_file)`)
+[Makefile:88](Makefile#L88)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+[Makefile:89](Makefile#L89)|$(call test_file_exists,$(message_file),"-r", "sudo")
+[Makefile:92](Makefile#L92)|@sudo rmmod $(module_filename)
+[Makefile:106](Makefile#L106)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+[Makefile:109](Makefile#L109)|@sudo rm $(device_filename)
+[Makefile:110](Makefile#L110)|@sudo rmmod $(module_filename)
+[Makefile:128](Makefile#L128)|@sudo rmmod $(module_filename)
+[Makefile:139](Makefile#L139)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:142](Makefile#L142)|@sudo rmmod $(module)
+[Makefile:156](Makefile#L156)|@sudo rmmod ${module}
+[Makefile:168](Makefile#L168)|@sudo insmod $(module).ko
+[Makefile:171](Makefile#L171)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko
 [tests.mk:75](tests.mk#L75)|@sudo dmesg --clear
 [tests.mk:78](tests.mk#L78)|@sudo rmmod $(1)

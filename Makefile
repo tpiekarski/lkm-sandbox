@@ -24,7 +24,7 @@
 SHELL:=/bin/bash
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 ccflags-y := -Wall
-obj-m += lkm_debugfs.o lkm_device.o lkm_mem.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
+obj-m += lkm_debugfs.o lkm_device.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
 include $(SELF_DIR)/tests.mk
 
@@ -40,6 +40,7 @@ test:
 	@$(MAKE) test-module name=lkm_debugfs
 	@$(MAKE) test-module name=lkm_device
 	@$(MAKE) test-module name=lkm_mem
+	@$(MAKE) test-module name=lkm_mev
 	@$(MAKE) test-module name=lkm_parameters
 	@$(MAKE) test-module name=lkm_proc
 	@$(MAKE) test-module name=lkm_process

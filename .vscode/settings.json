@@ -30,4 +30,9 @@
         "modules.order": true
     },
     "files.insertFinalNewline": true,
+    "cSpell.enableFiletypes": [
+        "c",
+        "makefile",
+        "markdown"
+    ],
 }

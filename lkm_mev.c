@@ -170,6 +170,15 @@ static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return 0l;
 }
 
+static bool mev_io_is_wronly(unsigned int f_flags)
+{
+	if ((f_flags & O_ACCMODE) == O_WRONLY) {
+		return true;
+	}
+
+	return false;
+}
+
 static int mev_open(struct inode *inode, struct file *file)
 {
 	printk(KERN_INFO "%s: Looking for container with cdev at inode\n",
@@ -192,8 +201,7 @@ static int mev_open(struct inode *inode, struct file *file)
 	// todo: check if the pointer to container won't point to NULL as soon as function is left
 	file->private_data = container;
 
-	printk(KERN_INFO "%s: Trimming device to '0'\n", THIS_MODULE->name);
-	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
+	if (mev_io_is_wronly(file->f_flags)) {
 		mev_trim(container);
 	}
 
@@ -225,6 +233,7 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 
 void mev_trim(struct mev_container *container)
 {
+	printk(KERN_INFO "%s: Trimming device to '0'\n", THIS_MODULE->name);
 	// todo: implement trimming to length 0
 }
 
@@ -233,5 +242,8 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 {
 	// todo: implement callback mev_write
 
-	return 0;
+	printk(KERN_NOTICE "%s: Writing not yet implemented\n",
+	       THIS_MODULE->name);
+
+	return -EPERM;
 }

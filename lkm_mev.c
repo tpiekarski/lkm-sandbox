@@ -59,9 +59,11 @@ struct mev_container {
 
 // Prototypes
 static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+static loff_t mev_llseek(struct file *file, loff_t offset, int whence);
+struct mev_qset *mev_follow(struct mev_container *container, int n);
+static bool mev_io_is_wronly(unsigned int f_flags);
 static int mev_open(struct inode *inode, struct file *file);
 static int mev_release(struct inode *inode, struct file *file);
-static loff_t mev_llseek(struct file *file, loff_t offset, int whence);
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *f_pos);
 void mev_trim(struct mev_container *container);
@@ -186,6 +188,22 @@ static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 	return 0l;
 }
 
+static loff_t mev_llseek(struct file *file, loff_t offset, int whence)
+{
+	// todo: implement callback mev_llseek
+
+	return 0;
+}
+
+struct mev_qset *mev_follow(struct mev_container *container, int n)
+{
+	// todo: implement follow function
+
+	struct mev_qset dummy = { .data = NULL, .next = NULL };
+
+	return &dummy;
+}
+
 static bool mev_io_is_wronly(unsigned int f_flags)
 {
 	if ((f_flags & O_ACCMODE) == O_WRONLY) {
@@ -229,13 +247,6 @@ static int mev_release(struct inode *inode, struct file *file)
 {
 	printk(KERN_INFO "%s: Releasing device\n", THIS_MODULE->name);
 	// nothing to do for a memory-based device
-
-	return 0;
-}
-
-static loff_t mev_llseek(struct file *file, loff_t offset, int whence)
-{
-	// todo: implement callback mev_llseek
 
 	return 0;
 }

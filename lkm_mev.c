@@ -66,7 +66,7 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *f_pos);
 void mev_trim(struct mev_container *container);
 static ssize_t mev_write(struct file *file, const char __user *buf,
-			 size_t count, loff_t *offp);
+			 size_t count, loff_t *f_pos);
 
 // Global Declaration
 static dev_t mev_device;
@@ -240,12 +240,13 @@ static loff_t mev_llseek(struct file *file, loff_t offset, int whence)
 	return 0;
 }
 
-// todo: consider avoiding abbreviation at all
+// todo: review and understand how reading exactly works
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *f_pos)
 {
-	// Returning -1 until function scull_follow is figured out :(
-	printk(KERN_INFO "%s: Reading not yet understood :(\n",
+	// Bouncer: Returning -1 until function scull_follow is figured out :(
+	printk(KERN_INFO
+	       "%s: Reading is implemented, but not yet understood :(\n",
 	       THIS_MODULE->name);
 
 	return -EPERM;
@@ -257,14 +258,14 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	int qset = container->qset;
 	int itemsize = quantum * qset;
 	int item = 0;
-	// todo: figure out what s and q prefixes are
+	// todo: figure out what s and q (quantum?) prefixes are
+	// todo: check what are these positions exactly
 	int s_pos = 0;
 	int q_pos = 0;
 	int rest = 0;
 	ssize_t retval = 0;
 
 	if (down_interruptible(&container->sem)) {
-		// todo: rephrase condition and statement in words
 		// todo: check why is 'out' not used (maybe use it)?
 		return -ERESTARTSYS;
 	}
@@ -280,11 +281,12 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 		count = container->size - *f_pos;
 	}
 
-	// Find listitem, qset index and offset in quantum
+	// Find listitem, qset index and offset in quantum (same as in write)
 	// todo: output all values with printk
+	// todo: figure out why one time is a division where another is modulo?
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
-	// todo: what do those prefixes s and q mean?
+	// todo: what do those prefixes s and q (quantum?) mean?
 	s_pos = rest / quantum;
 	q_pos = rest % quantum;
 
@@ -307,7 +309,6 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	}
 
 	if (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)) {
-		// todo: rephrase condition and statement in words
 		retval = -EFAULT;
 		goto out;
 	}
@@ -320,6 +321,8 @@ out:
 	return retval;
 }
 
+// todo: review and understand how trimming exactly works
+// todo: printk values in container before and after trimming
 void mev_trim(struct mev_container *container)
 {
 	printk(KERN_INFO "%s: Trimming device to '0'\n", THIS_MODULE->name);
@@ -329,6 +332,7 @@ void mev_trim(struct mev_container *container)
 	int qset = container->qset;
 	int i = 0;
 
+	// todo: printk entries into outer and inner loop
 	for (dptr = container->data; dptr; dptr = next) {
 		// todo: rephrase expressions in words
 		if (dptr->data) {
@@ -350,13 +354,99 @@ void mev_trim(struct mev_container *container)
 	container->data = NULL;
 }
 
+// todo: review and understand how writing exactly works
 static ssize_t mev_write(struct file *file, const char __user *buf,
-			 size_t count, loff_t *offp)
+			 size_t count, loff_t *f_pos)
 {
-	// todo: implement callback mev_write
-
-	printk(KERN_NOTICE "%s: Writing not yet implemented\n",
+	// Bouncer: Returning -1 until function scull_follow is figured out :(
+	printk(KERN_INFO
+	       "%s: Writing is implemented, but not yet understood :(\n",
 	       THIS_MODULE->name);
 
 	return -EPERM;
+	// ---
+
+	struct mev_container *container = file->private_data;
+	struct mev_qset *dptr;
+	int quantum = container->quantum;
+	int qset = container->qset;
+	int itemsize = quantum * qset;
+	int item = 0;
+	// todo: figure out what s and q (quantum?) prefixes are
+	// todo: check what are these positions exactly
+	int s_pos = 0;
+	int q_pos = 0;
+	int rest = 0;
+	ssize_t retval = -ENOMEM;
+
+	if (down_interruptible(&container->sem)) {
+		// todo: check why is 'out' not used (maybe use it)?
+		return -ERESTARTSYS;
+	}
+
+	// Find listitem, qset index and offset in quantum (same as in read)
+	// todo: output all values with printk
+	// todo: figure out why one time is a division where another is modulo?
+	item = (long)*f_pos / itemsize;
+	rest = (long)*f_pos % itemsize;
+	// todo: what do those prefixes s and q (quantum?) mean?
+	s_pos = rest / quantum;
+	q_pos = rest % quantum;
+
+	// todo: check how to follow the list up to the right position
+	// The book using a function named scull_follow without mentioning it further
+	// (https://github.com/jesstess/ldd3-examples/blob/master/examples/scull/main.c#L262)
+	//
+	// dptr = mev_follow(container, item); // -> corresponds to scull_follow()
+	//
+
+	if (dptr == NULL) {
+		goto out;
+	}
+
+	// todo: get more comfortable with memory allocation in ANSI C and in the kernel
+	// (For example write a little lkm_kmalloc module and let your VM run out of memory :))
+
+	if (!dptr->data) {
+		dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
+
+		if (!dptr->data) {
+			goto out;
+		}
+
+		// todo: check what and why memset is used
+		memset(dptr->data, 0, qset * sizeof(char *));
+	}
+
+	if (!dptr->data[s_pos]) {
+		dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
+
+		if (!dptr->data[s_pos]) {
+			goto out;
+		}
+
+		// todo: check why is memset not used here like in the parent data
+	}
+
+	if (count > quantum - q_pos) {
+		// todo: rephrase condition and statement in words
+		count = quantum - q_pos; // write up to the end of this quantum
+	}
+
+	if (copy_from_user(dptr->data[s_pos] + q_pos, buf, count)) {
+		retval = -EFAULT;
+		goto out;
+	}
+
+	*f_pos += count;
+	retval = count;
+
+	if (container->size < *f_pos) {
+		// todo: rephrase condition and statement in words
+		container->size = *f_pos;
+	}
+
+out:
+	up(&container->sem);
+	return retval;
 }

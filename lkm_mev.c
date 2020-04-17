@@ -291,14 +291,6 @@ static int mev_release(struct inode *inode, struct file *file)
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *f_pos)
 {
-	// Bouncer: Returning -1 until function scull_follow is figured out :(
-	printk(KERN_INFO
-	       "%s: Reading is implemented, but not yet understood :(\n",
-	       THIS_MODULE->name);
-
-	return -EPERM;
-	// ---
-
 	struct mev_container *container = file->private_data;
 	struct mev_qset *dptr = NULL;
 	int quantum = container->quantum;
@@ -403,14 +395,6 @@ void mev_trim(struct mev_container *container)
 static ssize_t mev_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *f_pos)
 {
-	// Bouncer: Returning -1 until function scull_follow is figured out :(
-	printk(KERN_INFO
-	       "%s: Writing is implemented, but not yet understood :(\n",
-	       THIS_MODULE->name);
-
-	return -EPERM;
-	// ---
-
 	struct mev_container *container = file->private_data;
 	struct mev_qset *dptr;
 	int quantum = container->quantum;

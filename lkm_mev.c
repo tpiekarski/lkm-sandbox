@@ -59,15 +59,15 @@ static struct file_operations mev_fops = {
 	.release = mev_release
 };
 
-struct mev_dev_container {
+struct mev_container {
 	// todo: declare all members by working through subsequent chapters
 	struct cdev cdev;
 };
 
 static dev_t mev_device;
-static struct mev_dev_container *dev_container;
+static struct mev_container *dev_container;
 
-static int lkm_mev_setup_cdev(struct mev_dev_container *dev, int index)
+static int lkm_mev_setup_cdev(struct mev_container *dev, int index)
 {
 	int dev_no = MKDEV(MAJOR(mev_device), MINOR(mev_device) + index);
 
@@ -115,7 +115,7 @@ static int __init lkm_mev_init(void)
 
 	printk(KERN_INFO "%s: Allocating memory for device container\n",
 	       THIS_MODULE->name);
-	size_t size = LKM_MEV_DEVICE_AMOUNT * sizeof(struct mev_dev_container);
+	size_t size = LKM_MEV_DEVICE_AMOUNT * sizeof(struct mev_container);
 	dev_container = kmalloc(size, GFP_KERNEL);
 
 	if (dev_container == NULL) {

@@ -26,7 +26,9 @@
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/semaphore.h>
 #include <linux/slab.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Thomas Piekarski");
@@ -51,6 +53,7 @@ struct mev_container {
 	int quantum;
 	int qset;
 	unsigned long size;
+	struct semaphore sem;
 	struct cdev cdev;
 };
 
@@ -60,10 +63,10 @@ static int mev_open(struct inode *inode, struct file *file);
 static int mev_release(struct inode *inode, struct file *file);
 static loff_t mev_llseek(struct file *file, loff_t offset, int whence);
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
-			loff_t *ppos);
+			loff_t *f_pos);
 void mev_trim(struct mev_container *container);
 static ssize_t mev_write(struct file *file, const char __user *buf,
-			 size_t count, loff_t *ppos);
+			 size_t count, loff_t *offp);
 
 // Global Declaration
 static dev_t mev_device;
@@ -73,8 +76,8 @@ static struct file_operations mev_fops = {
 	.llseek = mev_llseek,
 	.read = mev_read,
 	.write = mev_write,
-	// Using new ioctl and avoiding BKL (Big Kernel Lock)
-	// For details refer to: https://lwn.net/Articles/119652/
+	// Using new ioctl to avoid BKL (Big Kernel Lock)
+	// (for details refer to: https://lwn.net/Articles/119652/)
 	.unlocked_ioctl = mev_ioctl,
 	.open = mev_open,
 	.release = mev_release
@@ -237,12 +240,84 @@ static loff_t mev_llseek(struct file *file, loff_t offset, int whence)
 	return 0;
 }
 
+// todo: consider avoiding abbreviation at all
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
-			loff_t *ppos)
+			loff_t *f_pos)
 {
-	// todo: implement callback mev_read
+	// Returning -1 until function scull_follow is figured out :(
+	printk(KERN_INFO "%s: Reading not yet understood :(\n",
+	       THIS_MODULE->name);
 
-	return 0;
+	return -EPERM;
+	// ---
+
+	struct mev_container *container = file->private_data;
+	struct mev_qset *dptr = NULL;
+	int quantum = container->quantum;
+	int qset = container->qset;
+	int itemsize = quantum * qset;
+	int item = 0;
+	// todo: figure out what s and q prefixes are
+	int s_pos = 0;
+	int q_pos = 0;
+	int rest = 0;
+	ssize_t retval = 0;
+
+	if (down_interruptible(&container->sem)) {
+		// todo: rephrase condition and statement in words
+		// todo: check why is 'out' not used (maybe use it)?
+		return -ERESTARTSYS;
+	}
+
+	if (*f_pos >= container->size) {
+		// todo: rephrase condition and statement in words
+		// todo: check why no retval is set or why it is left 0?
+		goto out;
+	}
+
+	if (*f_pos + count > container->size) {
+		// todo: rephrase condition and statement in words
+		count = container->size - *f_pos;
+	}
+
+	// Find listitem, qset index and offset in quantum
+	// todo: output all values with printk
+	item = (long)*f_pos / itemsize;
+	rest = (long)*f_pos % itemsize;
+	// todo: what do those prefixes s and q mean?
+	s_pos = rest / quantum;
+	q_pos = rest % quantum;
+
+	// todo: check how to follow the list up to the right position
+	// The book using a function named scull_follow without mentioning it further
+	// (https://github.com/jesstess/ldd3-examples/blob/master/examples/scull/main.c#L262)
+	//
+	// dptr = mev_follow(container, item); // -> corresponds to scull_follow()
+	//
+
+	// todo: extract boolean expression into well-named function
+	// (something like is_data_holey or is_data_empty (so java-like ;))
+	if (dptr == NULL || !dptr->data || !dptr->data[s_pos]) {
+		goto out;
+	}
+
+	if (count > quantum - q_pos) {
+		// todo: rephrase condition and statement in words
+		count = quantum - q_pos; // read up to the end of this quantum
+	}
+
+	if (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)) {
+		// todo: rephrase condition and statement in words
+		retval = -EFAULT;
+		goto out;
+	}
+
+	*f_pos += count;
+	retval = count;
+
+out:
+	up(&container->sem);
+	return retval;
 }
 
 void mev_trim(struct mev_container *container)
@@ -255,13 +330,16 @@ void mev_trim(struct mev_container *container)
 	int i = 0;
 
 	for (dptr = container->data; dptr; dptr = next) {
+		// todo: rephrase expressions in words
 		if (dptr->data) {
 			for (i = 0; i < qset; i++) {
 				kfree(dptr->data[i]);
 			}
+
 			kfree(dptr->data);
 			dptr->data = NULL;
 		}
+
 		next = dptr->next;
 		kfree(dptr);
 	}
@@ -273,7 +351,7 @@ void mev_trim(struct mev_container *container)
 }
 
 static ssize_t mev_write(struct file *file, const char __user *buf,
-			 size_t count, loff_t *ppos)
+			 size_t count, loff_t *offp)
 {
 	// todo: implement callback mev_write
 

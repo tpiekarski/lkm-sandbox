@@ -33,20 +33,20 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Driver for memory-based character devices");
 MODULE_VERSION("0.1");
 
-#define LKM_MEV_DEVICE_AMOUNT 1
 #define LKM_MEV_DEVICE_COUNT 1
 #define LKM_MEV_DEVICE_MINOR 0
 #define LKM_MEV_DEVICE_NAME "mev"
 #define LKM_MEV_QSET_SIZE 1000
 #define LKM_MEV_QUANTUM_SIZE 4000
 
+// Structures
 struct mev_qset {
 	void **data;
 	struct mev_qset *next;
 };
 
 struct mev_container {
-	// todo: declare all members by working through subsequent chapters
+	// todo: declare missing members by working through subsequent chapters
 	struct mev_qset *data;
 	int quantum;
 	int qset;
@@ -54,6 +54,7 @@ struct mev_container {
 	struct cdev cdev;
 };
 
+// Prototypes
 static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
 static int mev_open(struct inode *inode, struct file *file);
 static int mev_release(struct inode *inode, struct file *file);
@@ -64,6 +65,9 @@ void mev_trim(struct mev_container *container);
 static ssize_t mev_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *ppos);
 
+// Global Declaration
+static dev_t mev_device;
+static struct mev_container *dev_container;
 static struct file_operations mev_fops = {
 	.owner = THIS_MODULE,
 	.llseek = mev_llseek,
@@ -75,9 +79,6 @@ static struct file_operations mev_fops = {
 	.open = mev_open,
 	.release = mev_release
 };
-
-static dev_t mev_device;
-static struct mev_container *dev_container;
 
 static int lkm_mev_setup_cdev(struct mev_container *dev, int index)
 {
@@ -127,7 +128,7 @@ static int __init lkm_mev_init(void)
 
 	printk(KERN_INFO "%s: Allocating memory for device container\n",
 	       THIS_MODULE->name);
-	size_t size = LKM_MEV_DEVICE_AMOUNT * sizeof(struct mev_container);
+	size_t size = LKM_MEV_DEVICE_COUNT * sizeof(struct mev_container);
 	dev_container = kmalloc(size, GFP_KERNEL);
 
 	if (dev_container == NULL) {
@@ -147,7 +148,7 @@ static int __init lkm_mev_init(void)
 		return rc;
 	}
 
-	printk(KERN_INFO "%s: Setup cdev and added to kernel\n",
+	printk(KERN_INFO "%s: Setup cdev and added cdev to kernel\n",
 	       THIS_MODULE->name);
 
 	return 0;
@@ -159,13 +160,10 @@ static void __exit lkm_mev_exit(void)
 	printk(KERN_INFO "%s: Exiting module\n", THIS_MODULE->name);
 
 	if (dev_container != NULL) {
-		printk(KERN_INFO "%s: Trimming device data to '0'\n",
+		printk(KERN_INFO
+		       "%s: Trimming data, deleting cdev and deallocating memory of device container\n",
 		       THIS_MODULE->name);
 		mev_trim(dev_container);
-
-		printk(KERN_INFO
-		       "%s: Deleting cdev and deallocating memory of device container\n",
-		       THIS_MODULE->name);
 		cdev_del(&dev_container->cdev);
 		kfree(dev_container);
 	}
@@ -196,6 +194,7 @@ static bool mev_io_is_wronly(unsigned int f_flags)
 
 static int mev_open(struct inode *inode, struct file *file)
 {
+	printk(KERN_INFO "%s: Opening device\n", THIS_MODULE->name);
 	printk(KERN_INFO "%s: Looking for container with cdev at inode\n",
 	       THIS_MODULE->name);
 	struct mev_container *container =

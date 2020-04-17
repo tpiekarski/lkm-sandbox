@@ -195,13 +195,49 @@ static loff_t mev_llseek(struct file *file, loff_t offset, int whence)
 	return 0;
 }
 
+// todo: review and understand how following exactly works, why is there memory allocated
+// Source of function: https://github.com/jesstess/ldd3-examples/blob/master/examples/scull/main.c#L262
 struct mev_qset *mev_follow(struct mev_container *container, int n)
 {
-	// todo: implement follow function
+	struct mev_qset *qset = container->data;
 
-	struct mev_qset dummy = { .data = NULL, .next = NULL };
+	// If it's needed allocate first qset
+	// todo: check under what exactly circumstances qset could be emtpy
+	// todo: consider to extract this into an own, well named function
+	if (!qset) {
+		qset = container->data =
+			kmalloc(sizeof(struct mev_qset), GFP_KERNEL);
 
-	return &dummy;
+		if (qset == NULL) {
+			return NULL;
+		}
+
+		// todo: check memset - what does it do exactly?
+		memset(qset, 0, sizeof(struct mev_qset));
+	}
+
+	// Follow the list
+	// todo: get to know why qsets are read from back to front
+	while (n--) {
+		if (!qset->next) {
+			// todo: figure out why allocating memory in advance (for writing?)
+			qset->next =
+				kmalloc(sizeof(struct mev_qset), GFP_KERNEL);
+
+			if (qset->next == NULL) {
+				return NULL;
+			}
+
+			// todo: check memset - what does it do exactly?
+			memset(qset->next, 0, sizeof(struct mev_qset));
+		}
+
+		qset = qset->next;
+
+		continue; // todo: figure out why such explicit continue
+	}
+
+	return qset;
 }
 
 static bool mev_io_is_wronly(unsigned int f_flags)
@@ -304,9 +340,7 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	// todo: check how to follow the list up to the right position
 	// The book using a function named scull_follow without mentioning it further
 	// (https://github.com/jesstess/ldd3-examples/blob/master/examples/scull/main.c#L262)
-	//
-	// dptr = mev_follow(container, item); // -> corresponds to scull_follow()
-	//
+	dptr = mev_follow(container, item); // -> corresponds to scull_follow()
 
 	// todo: extract boolean expression into well-named function
 	// (something like is_data_holey or is_data_empty (so java-like ;))
@@ -407,9 +441,7 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	// todo: check how to follow the list up to the right position
 	// The book using a function named scull_follow without mentioning it further
 	// (https://github.com/jesstess/ldd3-examples/blob/master/examples/scull/main.c#L262)
-	//
-	// dptr = mev_follow(container, item); // -> corresponds to scull_follow()
-	//
+	dptr = mev_follow(container, item); // -> corresponds to scull_follow()
 
 	if (dptr == NULL) {
 		goto out;

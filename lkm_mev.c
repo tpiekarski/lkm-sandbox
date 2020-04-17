@@ -38,12 +38,18 @@ MODULE_VERSION("0.1");
 #define LKM_MEV_DEVICE_MINOR 0
 #define LKM_MEV_DEVICE_AMOUNT 1
 
+struct mev_container {
+	// todo: declare all members by working through subsequent chapters
+	struct cdev cdev;
+};
+
 static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
 static int mev_open(struct inode *inode, struct file *file);
 static int mev_release(struct inode *inode, struct file *file);
 static loff_t mev_llseek(struct file *file, loff_t offset, int whence);
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *ppos);
+void mev_trim(struct mev_container *container);
 static ssize_t mev_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *ppos);
 
@@ -57,11 +63,6 @@ static struct file_operations mev_fops = {
 	.unlocked_ioctl = mev_ioctl,
 	.open = mev_open,
 	.release = mev_release
-};
-
-struct mev_container {
-	// todo: declare all members by working through subsequent chapters
-	struct cdev cdev;
 };
 
 static dev_t mev_device;
@@ -171,14 +172,38 @@ static long mev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 
 static int mev_open(struct inode *inode, struct file *file)
 {
-	// todo: implement callback mev_open
+	printk(KERN_INFO "%s: Looking for container with cdev at inode\n",
+	       THIS_MODULE->name);
+	struct mev_container *container =
+		container_of(inode->i_cdev, struct mev_container, cdev);
+
+	if (container == NULL) {
+		printk(KERN_WARNING
+		       "%s: Failed getting container by cdev at inode\n",
+		       THIS_MODULE->name);
+
+		return -EFAULT;
+	}
+
+	printk(KERN_INFO "%s: Found container for device (%d, %d)\n",
+	       THIS_MODULE->name, MAJOR(container->cdev.dev),
+	       MINOR(container->cdev.dev));
+
+	// todo: check if the pointer to container won't point to NULL as soon as function is left
+	file->private_data = container;
+
+	printk(KERN_INFO "%s: Trimming device to '0'\n", THIS_MODULE->name);
+	if ((file->f_flags & O_ACCMODE) == O_WRONLY) {
+		mev_trim(container);
+	}
 
 	return 0;
 }
 
 static int mev_release(struct inode *inode, struct file *file)
 {
-	// todo: implement callback mev_release
+	printk(KERN_INFO "%s: Releasing device\n", THIS_MODULE->name);
+	// nothing to do for a memory-based device
 
 	return 0;
 }
@@ -196,6 +221,11 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	// todo: implement callback mev_read
 
 	return 0;
+}
+
+void mev_trim(struct mev_container *container)
+{
+	// todo: implement trimming to length 0
 }
 
 static ssize_t mev_write(struct file *file, const char __user *buf,

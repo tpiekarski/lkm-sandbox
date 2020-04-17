@@ -33,13 +33,24 @@ MODULE_AUTHOR("Thomas Piekarski");
 MODULE_DESCRIPTION("Driver for memory-based character devices");
 MODULE_VERSION("0.1");
 
-#define LKM_MEV_DEVICE_NAME "mev"
+#define LKM_MEV_DEVICE_AMOUNT 1
 #define LKM_MEV_DEVICE_COUNT 1
 #define LKM_MEV_DEVICE_MINOR 0
-#define LKM_MEV_DEVICE_AMOUNT 1
+#define LKM_MEV_DEVICE_NAME "mev"
+#define LKM_MEV_QSET_SIZE 1000
+#define LKM_MEV_QUANTUM_SIZE 4000
+
+struct mev_qset {
+	void **data;
+	struct mev_qset *next;
+};
 
 struct mev_container {
 	// todo: declare all members by working through subsequent chapters
+	struct mev_qset *data;
+	int quantum;
+	int qset;
+	unsigned long size;
 	struct cdev cdev;
 };
 
@@ -148,6 +159,10 @@ static void __exit lkm_mev_exit(void)
 	printk(KERN_INFO "%s: Exiting module\n", THIS_MODULE->name);
 
 	if (dev_container != NULL) {
+		printk(KERN_INFO "%s: Trimming device data to '0'\n",
+		       THIS_MODULE->name);
+		mev_trim(dev_container);
+
 		printk(KERN_INFO
 		       "%s: Deleting cdev and deallocating memory of device container\n",
 		       THIS_MODULE->name);
@@ -234,7 +249,28 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 void mev_trim(struct mev_container *container)
 {
 	printk(KERN_INFO "%s: Trimming device to '0'\n", THIS_MODULE->name);
-	// todo: implement trimming to length 0
+
+	struct mev_qset *next = NULL;
+	struct mev_qset *dptr = NULL;
+	int qset = container->qset;
+	int i = 0;
+
+	for (dptr = container->data; dptr; dptr = next) {
+		if (dptr->data) {
+			for (i = 0; i < qset; i++) {
+				kfree(dptr->data[i]);
+			}
+			kfree(dptr->data);
+			dptr->data = NULL;
+		}
+		next = dptr->next;
+		kfree(dptr);
+	}
+
+	container->size = 0;
+	container->quantum = LKM_MEV_QUANTUM_SIZE;
+	container->qset = LKM_MEV_QSET_SIZE;
+	container->data = NULL;
 }
 
 static ssize_t mev_write(struct file *file, const char __user *buf,

@@ -48,7 +48,6 @@ struct mev_qset {
 };
 
 struct mev_container {
-	// todo: declare missing members by working through subsequent chapters
 	struct mev_qset *data;
 	int quantum;
 	int qset;
@@ -104,6 +103,9 @@ static int lkm_mev_setup_cdev(struct mev_container *dev, int index)
 
 		return rc;
 	}
+
+	printk(KERN_INFO "%s: Initializing semaphore\n", THIS_MODULE->name);
+	sema_init(&dev->sem, 1);
 
 	return 0;
 }
@@ -243,6 +245,9 @@ struct mev_qset *mev_follow(struct mev_container *container, int n)
 static bool mev_io_is_wronly(unsigned int f_flags)
 {
 	if ((f_flags & O_ACCMODE) == O_WRONLY) {
+		printk(KERN_DEBUG
+		       "%s: - ((f_flags & O_ACCMODE) == O_WRONLY) = true\n",
+		       THIS_MODULE->name);
 		return true;
 	}
 
@@ -291,14 +296,14 @@ static int mev_release(struct inode *inode, struct file *file)
 static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 			loff_t *f_pos)
 {
+	printk(KERN_INFO "%s: Trying to read some data\n", THIS_MODULE->name);
+
 	struct mev_container *container = file->private_data;
 	struct mev_qset *dptr = NULL;
 	int quantum = container->quantum;
 	int qset = container->qset;
 	int itemsize = quantum * qset;
 	int item = 0;
-	// todo: figure out what s and q (quantum?) prefixes are
-	// todo: check what are these positions exactly
 	int s_pos = 0;
 	int q_pos = 0;
 	int rest = 0;
@@ -306,17 +311,25 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 
 	if (down_interruptible(&container->sem)) {
 		// todo: check why is 'out' not used (maybe use it)?
+		printk(KERN_DEBUG
+		       "%s: - (down_interruptible(&container->sem)) = true\n",
+		       THIS_MODULE->name);
+
 		return -ERESTARTSYS;
 	}
 
 	if (*f_pos >= container->size) {
-		// todo: rephrase condition and statement in words
-		// todo: check why no retval is set or why it is left 0?
+		printk(KERN_DEBUG "%s: - (*f_pos >= container->size) = true\n",
+		       THIS_MODULE->name);
+
 		goto out;
 	}
 
 	if (*f_pos + count > container->size) {
-		// todo: rephrase condition and statement in words
+		printk(KERN_DEBUG
+		       "%s: - (*f_pos + count > container->size) = true",
+		       THIS_MODULE->name);
+
 		count = container->size - *f_pos;
 	}
 
@@ -325,8 +338,10 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	// todo: figure out why one time is a division where another is modulo?
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
-	// todo: what do those prefixes s and q (quantum?) mean?
+
+	// s_pos corresponds to the position within scull
 	s_pos = rest / quantum;
+	// q_pos corresponds to the position within quantum
 	q_pos = rest % quantum;
 
 	// todo: check how to follow the list up to the right position
@@ -337,15 +352,24 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	// todo: extract boolean expression into well-named function
 	// (something like is_data_holey or is_data_empty (so java-like ;))
 	if (dptr == NULL || !dptr->data || !dptr->data[s_pos]) {
+		printk(KERN_DEBUG
+		       "%s: - (dptr == NULL || !dptr->data || !dptr->data[s_pos]) = true\n",
+		       THIS_MODULE->name);
 		goto out;
 	}
 
 	if (count > quantum - q_pos) {
-		// todo: rephrase condition and statement in words
+		printk(KERN_DEBUG "%s: - (count > quantum - q_pos) = true\n",
+		       THIS_MODULE->name);
+
 		count = quantum - q_pos; // read up to the end of this quantum
 	}
 
 	if (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)) {
+		printk(KERN_DEBUG
+		       "%s: - (copy_to_user(buf, dptr->data[s_pos] + q_pos, count)) = true\n",
+		       THIS_MODULE->name);
+
 		retval = -EFAULT;
 		goto out;
 	}
@@ -369,11 +393,16 @@ void mev_trim(struct mev_container *container)
 	int qset = container->qset;
 	int i = 0;
 
-	// todo: printk entries into outer and inner loop
 	for (dptr = container->data; dptr; dptr = next) {
-		// todo: rephrase expressions in words
+		printk(KERN_DEBUG "%s: Trimming, entering outer loop\n",
+		       THIS_MODULE->name);
+
 		if (dptr->data) {
 			for (i = 0; i < qset; i++) {
+				printk(KERN_DEBUG
+				       "%s: Trimming, entering inner loop\n",
+				       THIS_MODULE->name);
+
 				kfree(dptr->data[i]);
 			}
 
@@ -395,14 +424,14 @@ void mev_trim(struct mev_container *container)
 static ssize_t mev_write(struct file *file, const char __user *buf,
 			 size_t count, loff_t *f_pos)
 {
+	printk(KERN_DEBUG "%s: Trying to write some data\n", THIS_MODULE->name);
+
 	struct mev_container *container = file->private_data;
 	struct mev_qset *dptr;
 	int quantum = container->quantum;
 	int qset = container->qset;
 	int itemsize = quantum * qset;
 	int item = 0;
-	// todo: figure out what s and q (quantum?) prefixes are
-	// todo: check what are these positions exactly
 	int s_pos = 0;
 	int q_pos = 0;
 	int rest = 0;
@@ -410,6 +439,10 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 
 	if (down_interruptible(&container->sem)) {
 		// todo: check why is 'out' not used (maybe use it)?
+		printk(KERN_DEBUG
+		       "%s: - (down_interruptible(&container->sem)) = true\n",
+		       THIS_MODULE->name);
+
 		return -ERESTARTSYS;
 	}
 
@@ -418,8 +451,10 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	// todo: figure out why one time is a division where another is modulo?
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
-	// todo: what do those prefixes s and q (quantum?) mean?
+
+	// s_pos corresponds to the position within scull
 	s_pos = rest / quantum;
+	// q_pos corresponds to the position within quantum
 	q_pos = rest % quantum;
 
 	// todo: check how to follow the list up to the right position
@@ -428,6 +463,8 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	dptr = mev_follow(container, item); // -> corresponds to scull_follow()
 
 	if (dptr == NULL) {
+		printk(KERN_DEBUG "%s: - (dptr == NULL) = true\n",
+		       THIS_MODULE->name);
 		goto out;
 	}
 
@@ -435,6 +472,9 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	// (For example write a little lkm_kmalloc module and let your VM run out of memory :))
 
 	if (!dptr->data) {
+		printk(KERN_DEBUG "%s: - (!dptr->data) = true\n",
+		       THIS_MODULE->name);
+
 		dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
 
 		if (!dptr->data) {
@@ -446,6 +486,9 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	}
 
 	if (!dptr->data[s_pos]) {
+		printk(KERN_DEBUG "%s: - (!dptr->data[s_pos]) = true\n",
+		       THIS_MODULE->name);
+
 		dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
 
 		if (!dptr->data[s_pos]) {
@@ -456,11 +499,17 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	}
 
 	if (count > quantum - q_pos) {
-		// todo: rephrase condition and statement in words
+		printk(KERN_DEBUG "%s: - (count > quantum - q_pos) = true\n",
+		       THIS_MODULE->name);
+
 		count = quantum - q_pos; // write up to the end of this quantum
 	}
 
 	if (copy_from_user(dptr->data[s_pos] + q_pos, buf, count)) {
+		printk(KERN_DEBUG
+		       "%s: - (copy_from_user(dptr->data[s_pos] + q_pos, buf, count)) = true\n",
+		       THIS_MODULE->name);
+
 		retval = -EFAULT;
 		goto out;
 	}
@@ -469,7 +518,9 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	retval = count;
 
 	if (container->size < *f_pos) {
-		// todo: rephrase condition and statement in words
+		printk(KERN_DEBUG "%s: - (container->size < *f_pos) = true\n",
+		       THIS_MODULE->name);
+
 		container->size = *f_pos;
 	}
 

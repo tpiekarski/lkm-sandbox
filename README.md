@@ -130,9 +130,9 @@ File:Line|Use of sudo
 [Makefile:144](Makefile#L144)|@echo "Testing" \| sudo tee $(device_file)
 [Makefile:146](Makefile#L146)|@sudo rm -fv $(device_file)
 [Makefile:147](Makefile#L147)|@sudo rmmod $(module)
-[Makefile:158](Makefile#L158|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:158](Makefile#L158)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
 [Makefile:161](Makefile#L161)|@sudo rmmod $(module)
-[Makefile:175](Makefile#L175)|@sudo rmmod ${module}
+[Makefile:175](Makefile#L175)|@sudo rmmod ${module}   
 [Makefile:187](Makefile#L187)|@sudo insmod $(module).ko
 [Makefile:190](Makefile#L190)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko

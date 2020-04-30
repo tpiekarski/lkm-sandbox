@@ -50,6 +50,7 @@ test:
 	@$(MAKE) test-debugfs
 	@$(MAKE) test-device
 	@$(MAKE) test-memory
+	@$(MAKE) test-mev
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
 
@@ -127,6 +128,23 @@ test-memory:
 	$(call test_proc_file_readable,"/proc/lkm/swap/total")
 
 	@sudo rmmod $(module_filename)
+
+test-mev:
+	$(info Running additional tests for module 'lkm_mev' by loading and reading/writing to /dev/lkm_mev)
+	$(info Root permissions are needed for loading/unloading with insmod/rmmod and reading/writing to test device)
+
+	$(eval module = lkm_mev)
+	$(eval device_file = /dev/lkm_mev)
+	
+	$(call test_module_exists,$(module))
+	$(call load_module,$(module))
+	$(call test_module_loaded,$(module))
+	$(eval major = `grep "mev" /proc/devices | sed "s/ .*//g"` )
+	@sudo mknod $(device_file) c $(major) 0
+	@echo "Testing" | sudo tee $(device_file)
+	$(call test_compare_values,"\"`cat $(device_file)`\"","=","\"Testing\"")
+	@sudo rm -fv $(device_file)
+	@sudo rmmod $(module)
 
 test-parameters:
 	$(info Running additional tests for 'lkm_parameters' by loading and checking parameters in /sys filesystem)

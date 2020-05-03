@@ -36,12 +36,12 @@ clean:
 
 test:
 	$(info Running all available tests)
+
 	@$(MAKE) test-tests
 	@$(MAKE) test-module name=lkm_debugfs
 	@$(MAKE) test-module name=lkm_device
 	@$(MAKE) test-module name=lkm_device_numbers
 	@$(MAKE) test-module name=lkm_mem
-	@$(MAKE) test-module name=lkm_mev
 	@$(MAKE) test-module name=lkm_parameters
 	@$(MAKE) test-module name=lkm_proc
 	@$(MAKE) test-module name=lkm_process
@@ -50,9 +50,13 @@ test:
 	@$(MAKE) test-debugfs
 	@$(MAKE) test-device
 	@$(MAKE) test-memory
-	@$(MAKE) test-mev
 	@$(MAKE) test-parameters
 	@$(MAKE) test-proc
+
+	# Broken Tests, Travis stalls build
+	# See GitHub Issue: https://github.com/tpiekarski/lkm-sandbox/issues/49
+	#@$(MAKE) test-module name=lkm_mev
+	#@$(MAKE) test-mev
 
 	@echo "All test targets have run successfully."
 

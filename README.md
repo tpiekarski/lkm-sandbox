@@ -198,6 +198,7 @@ the build directory.
 - Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac
 - Stackoverflow, [Is there a C function like sprintf in the Linux kernel?](https://stackoverflow.com/questions/12264291/is-there-a-c-function-like-sprintf-in-the-linux-kernel)
 - Stackoverflow, [sprintf function's buffer overflow?](https://stackoverflow.com/questions/4282281/sprintf-functions-buffer-overflow)
+- Stackoverflow, [How to compile a Linux kernel module using -std=gnu99?](https://stackoverflow.com/questions/15910064/how-to-compile-a-linux-kernel-module-using-std-gnu99)
 - Superuser, [Variables in GNU Make...](https://superuser.com/questions/790560/variables-in-gnu-make-recipes-is-that-possible)
 - SysTutorials, [How to get a Makefiles directory for including other Makefiles](https://www.systutorials.com/how-to-get-a-makefiles-directory-for-including-other-makefiles/) by Eric Ma
 - Visual Studio Code, [Snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)

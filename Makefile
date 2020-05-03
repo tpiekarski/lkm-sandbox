@@ -23,7 +23,7 @@
 
 SHELL:=/bin/bash
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-ccflags-y := -Wall
+ccflags-y := -std=gnu99 -Wall -Wno-declaration-after-statement
 obj-m += lkm_debugfs.o lkm_device.o lkm_device_numbers.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
 include $(SELF_DIR)/tests.mk

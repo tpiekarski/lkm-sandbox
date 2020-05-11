@@ -23,10 +23,12 @@
 
 SHELL:=/bin/bash
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-ccflags-y := -std=gnu99 -Wall -Wno-declaration-after-statement
-obj-m += lkm_debugfs.o lkm_device.o lkm_device_numbers.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
+include $(SELF_DIR)/debug.mk
 include $(SELF_DIR)/tests.mk
+
+ccflags-y := -I$(SELF_DIR)/include $(DEBUG_FLAGS) -std=gnu99 -Wall -Wno-declaration-after-statement
+obj-m += lkm_debugfs.o lkm_device.o lkm_device_numbers.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_pp.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -43,10 +45,12 @@ test:
 	@$(MAKE) test-module name=lkm_device_numbers
 	@$(MAKE) test-module name=lkm_mem
 	@$(MAKE) test-module name=lkm_parameters
+	@$(MAKE) test-module name=lkm_pp
 	@$(MAKE) test-module name=lkm_proc
 	@$(MAKE) test-module name=lkm_process
 	@$(MAKE) test-module name=lkm_sandbox
 	@$(MAKE) test-module name=lkm_skeleton
+	@$(MAKE) test-debug
 	@$(MAKE) test-debugfs
 	@$(MAKE) test-device
 	@$(MAKE) test-memory
@@ -69,6 +73,18 @@ test-module:
 	$(info Root permissions are needed for clearing buffer with dmesg and loading/unloading with insmod/rmmod)
 	$(call test_module_exists,$(name))
 	$(call test_module,$(name))
+
+#
+# Targets for debugging flags
+#
+
+test-debug:
+	$(info Running additional tests for debug flag(s) in Makefile)
+
+	@echo "Building without debugging features"
+	$(MAKE) clean all debug=0
+	@echo "Building with debugging features"
+	$(MAKE) clean all debug=1
 
 #
 # Targets for additional concept-based module tests

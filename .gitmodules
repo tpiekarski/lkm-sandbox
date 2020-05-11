@@ -1,0 +1,3 @@
+[submodule "libs/pretty-printk"]
+	path = libs/pretty-printk
+	url = https://github.com/tpiekarski/pretty-printk.git

@@ -35,4 +35,7 @@
         "makefile",
         "markdown"
     ],
+    "files.associations": {
+        "pretty_printk.h": "c"
+    },
 }

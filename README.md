@@ -28,12 +28,21 @@ No.|Module|Source|Description
 3|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc
 4|LKM Memory-based Device|[lkm_mev.c](lkm_mec.c)|Driver for a memory-based character device, based to some degree on scull, developed in the book [Linux Device Drivers](https://lwn.net/Kernel/LDD3/), Chapter 3
 5|LKM Parameters|[lkm_parameters.c](lkm_parameters.c)|Module for passing parameters from user- to kernelspace
-6|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
-7|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
-8|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
-9|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
+6|LKM Pretty Printk|[lkm_pp.c](lkm_pp.c)|Module for testing integration of [pretty-printk](https://github.com/tpiekarski/pretty-printk)
+7|LKM Proc|[lkm_proc.c](lkm_proc.c)|Module accessing /proc filesystem using sequential I/O
+8|LKM Process|[lkm_process.c](lkm_process.c)|Accessing and printing current process information
+9|LKM Sandbox|[lkm_sandbox.c](lkm_sandbox.c)|Sandbox module for different experiments
+10|LKM Skeleton|[lkm_skeleton.c](lkm_skeleton.c)|Skeleton module for faster scaffolding of new modules
 
 ## [Building](#building)
+
+When cloning for the first time, please clone also submodules with `--recurse-submodules` to get
+[pretty-printk](https://github.com/tpiekarski/pretty-printk) as well.
+
+```sh
+git clone --recurse-submodules git@github.com:tpiekarski/lkm-sandbox.git
+```
+
 
 ```sh
 make clean && make
@@ -117,24 +126,24 @@ grep -n -r "sudo" *
 
 File:Line|Use of sudo
 ---|---
-[Makefile:86](Makefile#L86)|$(call test_file_exists,$(number_file),"-r", "sudo")
-[Makefile:87](Makefile#L87)|$(eval number_file_content = `sudo cat $(number_file)`)
-[Makefile:90](Makefile#L90)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
-[Makefile:91](Makefile#L91)|$(call test_file_exists,$(message_file),"-r", "sudo")
-[Makefile:94](Makefile#L94)|@sudo rmmod $(module_filename)
-[Makefile:108](Makefile#L108)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-[Makefile:111](Makefile#L111)|@sudo rm $(device_filename)
-[Makefile:112](Makefile#L112)|@sudo rmmod $(module_filename)
-[Makefile:130](Makefile#L130)|@sudo rmmod $(module_filename)
-[Makefile:143](Makefile#L143)| @sudo mknod $(device_file) c $(major) 0
-[Makefile:144](Makefile#L144)|@echo "Testing" \| sudo tee $(device_file)
-[Makefile:146](Makefile#L146)|@sudo rm -fv $(device_file)
-[Makefile:147](Makefile#L147)|@sudo rmmod $(module)
-[Makefile:158](Makefile#L158)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
-[Makefile:161](Makefile#L161)|@sudo rmmod $(module)
-[Makefile:175](Makefile#L175)|@sudo rmmod ${module}   
-[Makefile:187](Makefile#L187)|@sudo insmod $(module).ko
-[Makefile:190](Makefile#L190)|@sudo rmmod $(module)
+[Makefile:106](Makefile#L106)|$(call test_file_exists,$(number_file),"-r", "sudo")
+[Makefile:107](Makefile#L107)|$(eval number_file_content = `sudo cat $(number_file)`)
+[Makefile:110](Makefile#L110)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+[Makefile:111](Makefile#L111)|$(call test_file_exists,$(message_file),"-r", "sudo")
+[Makefile:114](Makefile#L114)|@sudo rmmod $(module_filename)
+[Makefile:128](Makefile#L128)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+[Makefile:131](Makefile#L131)|@sudo rm $(device_filename)
+[Makefile:132](Makefile#L132)|@sudo rmmod $(module_filename)
+[Makefile:150](Makefile#L150)|@sudo rmmod $(module_filename)
+[Makefile:163](Makefile#L163)| @sudo mknod $(device_file) c $(major) 0
+[Makefile:164](Makefile#L164)|@echo "Testing" \| sudo tee $(device_file)
+[Makefile:166](Makefile#L166)|@sudo rm -fv $(device_file)
+[Makefile:167](Makefile#L167)|@sudo rmmod $(module)
+[Makefile:178](Makefile#L178)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:181](Makefile#L181)|@sudo rmmod $(module)
+[Makefile:195](Makefile#L195)|@sudo rmmod ${module}   
+[Makefile:207](Makefile#L207)|@sudo insmod $(module).ko
+[Makefile:210](Makefile#L210)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko
 [tests.mk:75](tests.mk#L75)|@sudo dmesg --clear
 [tests.mk:78](tests.mk#L78)|@sudo rmmod $(1)

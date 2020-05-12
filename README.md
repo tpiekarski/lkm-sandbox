@@ -43,7 +43,6 @@ When cloning for the first time, please clone also submodules with `--recurse-su
 git clone --recurse-submodules git@github.com:tpiekarski/lkm-sandbox.git
 ```
 
-
 ```sh
 make clean && make
 ```
@@ -80,8 +79,9 @@ test -c /dev/lkm_device && cat /dev/lkm_device || echo "Device /dev/lkm_device" 
 sudo rmmod lkm_device
 ```
 
-Additional tests for sandbox access to /proc including loading module, testing if file inside /proc exists and outputting that file.
-Either run the Makefile target *test-proc* with ```make test-proc``` or the following few commands:
+Additional tests for sandbox access to /proc including loading module, testing if file inside /proc exists and
+outputting that file. Either run the Makefile target *test-proc* with ```make test-proc``` or the following few
+commands:
 
 ```sh
 sudo insmod lkm_proc.ko
@@ -141,7 +141,7 @@ File:Line|Use of sudo
 [Makefile:167](Makefile#L167)|@sudo rmmod $(module)
 [Makefile:178](Makefile#L178)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
 [Makefile:181](Makefile#L181)|@sudo rmmod $(module)
-[Makefile:195](Makefile#L195)|@sudo rmmod ${module}   
+[Makefile:195](Makefile#L195)|@sudo rmmod ${module}
 [Makefile:207](Makefile#L207)|@sudo insmod $(module).ko
 [Makefile:210](Makefile#L210)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko

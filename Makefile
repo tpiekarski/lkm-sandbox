@@ -181,7 +181,7 @@ test-parameters:
 	@sudo rmmod $(module)
 
 test-proc:
-	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cating '$(proc_file)')
+	$(info Running additional tests for 'lkm_proc' to access /proc filesystem by loading and cat-ing '$(proc_file)')
 	$(info Root permissions are needed for loading/unloading with insmod/rmmod)
 
 	$(eval module = lkm_proc)

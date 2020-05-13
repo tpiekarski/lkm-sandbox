@@ -310,9 +310,8 @@ static ssize_t mev_read(struct file *file, char __user *buf, size_t count,
 	ssize_t retval = 0;
 
 	if (down_interruptible(&container->sem)) {
-		// todo: check why is 'out' not used (maybe use it)?
-		printk(KERN_DEBUG
-		       "%s: - (down_interruptible(&container->sem)) = true\n",
+		printk(KERN_ERR
+		       "%s: Failed getting hold of the semaphore by calling interruptible down\n",
 		       THIS_MODULE->name);
 
 		return -ERESTARTSYS;
@@ -438,9 +437,8 @@ static ssize_t mev_write(struct file *file, const char __user *buf,
 	ssize_t retval = -ENOMEM;
 
 	if (down_interruptible(&container->sem)) {
-		// todo: check why is 'out' not used (maybe use it)?
-		printk(KERN_DEBUG
-		       "%s: - (down_interruptible(&container->sem)) = true\n",
+		printk(KERN_ERR
+		       "%s: Failed getting hold of the semaphore by calling interruptible down\n",
 		       THIS_MODULE->name);
 
 		return -ERESTARTSYS;

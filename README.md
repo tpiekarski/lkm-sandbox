@@ -5,7 +5,7 @@
 ## [Overview](#overview)
 
 [Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [Disclaimer](#disclaimer) /
- [License](#license) / [Notes](#notes) / [Rehearsal](#rehearsal) / [Books](#books) / [Links](#links)
+ [License](#license) / [Notes](#notes) / [PoC](#poc) / [Rehearsal](#rehearsal) / [Books](#books) / [Links](#links)
 
 The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
@@ -174,6 +174,16 @@ and unloading of your module, you’ll be writing code that responds to system e
 than operates in a sequential pattern."
 
 "With kernel development, you’re writing APIs, not applications themselves."
+
+## [PoC](#poc)
+
+While triaging, debugging and working with bugs and issues it can come in handy to experiment with some code and write
+a PoC to prove some statements or to answer a question. In the following are a collection of such PoC which follow up
+on a lead to prove statements, ideas and questions I recently came across.
+
+File|Description|Motivation
+---|---|---
+[io-port-permissions.c](pocs/io-port-permissions.c)|Are I/O Permissions granted by process or thread?|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
 
 ## [Rehearsal](#rehearsal)
 

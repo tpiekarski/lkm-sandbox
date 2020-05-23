@@ -27,7 +27,7 @@ POCS_BUILD=$(SELF_DIR)build
 .PHONY: pocs # Force targets to be re-made independent of depending files
 
 all:
-	$(info Compiling all rehearsal source files)
+	$(info Compiling all PoC source files)
 	gcc -pthread -O -Wall -Wextra -o $(POCS_BUILD)/io-port-permissions io-port-permissions.c
 
 clean:

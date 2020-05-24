@@ -27,13 +27,14 @@
 #include <sys/io.h> // iopl, ioperm
 #include <unistd.h> // sleep
 
-#define PORT 42
+#define PORT 0x378 // lp0
 
 void *read_from_child()
 {
 	printf("Reading anything from a new thread to test permissions.\n");
 
-	// This should work, because child threads inherit permissions
+	// The inb() will succeed due to permissions are inherited to
+	// childs after they got acquired with either iopl or ioperm
 	printf("%x\n", inb(PORT));
 
 	return NULL;
@@ -42,12 +43,11 @@ void *read_from_child()
 void *read_from_sleepy_child()
 {
 	sleep(2);
-	printf("Reading anything delayed from a new thread to test permission.\n");
+	printf("Reading anything delayed from a new thread to test permissions.\n");
 
-	// This won't work, because child thread is created before permissions are
-	// acquired by iopl or ioperm. So I/O port permissions are _not_ set by
-	// process but by thread. The are only valid inside a thread and its
-	// children after the permission got acquired.
+	// The inb() will fail due to missing permissions and it'll segfault
+	// although permissions are acquired before threads are joined.
+	// When permissions are set per process this should work.
 	printf("%x\n", inb(PORT));
 
 	return NULL;
@@ -63,10 +63,10 @@ int main(int argc, char const *argv[])
 		return -2;
 	}
 
-	pthread_t reading_thread_1; // delayed by 2 seconds.
-	pthread_t reading_thread_2;
+	pthread_t delayed_thread; // delayed by a few seconds.
+	pthread_t thread;
 
-	pthread_create(&reading_thread_1, NULL, read_from_sleepy_child, NULL);
+	pthread_create(&delayed_thread, NULL, read_from_sleepy_child, NULL);
 
 	if (strcmp(argv[1], "iopl") == 0) {
 		printf("Using iopl to get I/O port permissions.\n");
@@ -79,7 +79,7 @@ int main(int argc, char const *argv[])
 	} else {
 		printf("Using nothing to get I/O port permissions.\n");
 
-		retval = 0; // Test for segfault
+		retval = 0; // Test for segfault ;)
 	}
 
 	if (retval != 0) {
@@ -90,11 +90,14 @@ int main(int argc, char const *argv[])
 	}
 
 	printf("Reading anything from default thread to test permissions.\n");
-	printf("%02x\n", inb(PORT));
 
-	pthread_create(&reading_thread_2, NULL, read_from_child, NULL);
-	pthread_join(reading_thread_1, NULL);
-	pthread_join(reading_thread_2, NULL);
+	// The inb() will succeed due to being the main, default thread
+	// where permissions got acquired in first place
+	printf("%x\n", inb(PORT));
+
+	pthread_create(&thread, NULL, read_from_child, NULL);
+	pthread_join(delayed_thread, NULL);
+	pthread_join(thread, NULL);
 
 	return retval;
 }

@@ -30,6 +30,7 @@ all:
 	$(info Compiling all rehearsal source files)
 	gcc -o $(REHEARSALS_BUILD)/read read.c
 	gcc -o $(REHEARSALS_BUILD)/write write.c
+	gcc -o $(REHEARSALS_BUILD)/io-ports io-ports.c
 
 clean:
 	@rm -f $(REHEARSALS_BUILD)/*

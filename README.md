@@ -194,8 +194,9 @@ It is never bad to rehearse things, but sometimes a little embarrassing to admit
 
 File|Concept
 ---|---
-[read.c](rehearsals/read.c)|Reading of files in vanilla C
-[write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
+[rehearsals/io-ports.c](rehearsals/io-ports.c)|Low-level port-mapped I/O operations
+[rehearsals/read.c](rehearsals/read.c)|Reading of files in vanilla C
+[rehearsals/write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
 
 To build those files just run ``make clean && make`` in `./rehearsals/` and all executables will be placed in
 the build directory.
@@ -215,9 +216,10 @@ the build directory.
 - Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
 - Open source for you, [Debugging the Linux Kernel with debugfs](https://opensourceforu.com/2010/10/debugging-linux-kernel-with-debugfs/) by [Surya Prabhakar](https://opensourceforu.com/author/surya-prabhakar/)
 - Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac
+- Stackoverflow, [How to compile a Linux kernel module using -std=gnu99?](https://stackoverflow.com/questions/15910064/how-to-compile-a-linux-kernel-module-using-std-gnu99)
 - Stackoverflow, [Is there a C function like sprintf in the Linux kernel?](https://stackoverflow.com/questions/12264291/is-there-a-c-function-like-sprintf-in-the-linux-kernel)
 - Stackoverflow, [sprintf function's buffer overflow?](https://stackoverflow.com/questions/4282281/sprintf-functions-buffer-overflow)
-- Stackoverflow, [How to compile a Linux kernel module using -std=gnu99?](https://stackoverflow.com/questions/15910064/how-to-compile-a-linux-kernel-module-using-std-gnu99)
 - Superuser, [Variables in GNU Make...](https://superuser.com/questions/790560/variables-in-gnu-make-recipes-is-that-possible)
 - SysTutorials, [How to get a Makefiles directory for including other Makefiles](https://www.systutorials.com/how-to-get-a-makefiles-directory-for-including-other-makefiles/) by Eric Ma
+- TLDP, [Linux I/O port programming mini-HOWTO](https://www.tldp.org/HOWTO/IO-Port-Programming.html) by Riku Saikkonen
 - Visual Studio Code, [Snippets](https://code.visualstudio.com/docs/editor/userdefinedsnippets)

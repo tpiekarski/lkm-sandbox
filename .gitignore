@@ -12,6 +12,9 @@ modules.order
 # Rehearsals
 /rehearsals/build/*
 
+# PoC
+/pocs/build/*
+
 # Miscellaneous files
 *.code-workspace
 *.log

@@ -13,6 +13,8 @@ install:
 script:
   - make license
   - make
+  - make pocs
+  - make rehearsals
   - make test
   - make clean
 

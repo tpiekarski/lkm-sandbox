@@ -126,24 +126,24 @@ grep -n -r "sudo" *
 
 File:Line|Use of sudo
 ---|---
-[Makefile:106](Makefile#L106)|$(call test_file_exists,$(number_file),"-r", "sudo")
-[Makefile:107](Makefile#L107)|$(eval number_file_content = `sudo cat $(number_file)`)
-[Makefile:110](Makefile#L110)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
-[Makefile:111](Makefile#L111)|$(call test_file_exists,$(message_file),"-r", "sudo")
-[Makefile:114](Makefile#L114)|@sudo rmmod $(module_filename)
-[Makefile:128](Makefile#L128)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
-[Makefile:131](Makefile#L131)|@sudo rm $(device_filename)
-[Makefile:132](Makefile#L132)|@sudo rmmod $(module_filename)
-[Makefile:150](Makefile#L150)|@sudo rmmod $(module_filename)
-[Makefile:163](Makefile#L163)| @sudo mknod $(device_file) c $(major) 0
-[Makefile:164](Makefile#L164)|@echo "Testing" \| sudo tee $(device_file)
-[Makefile:166](Makefile#L166)|@sudo rm -fv $(device_file)
-[Makefile:167](Makefile#L167)|@sudo rmmod $(module)
-[Makefile:178](Makefile#L178)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
-[Makefile:181](Makefile#L181)|@sudo rmmod $(module)
-[Makefile:195](Makefile#L195)|@sudo rmmod ${module}
-[Makefile:207](Makefile#L207)|@sudo insmod $(module).ko
-[Makefile:210](Makefile#L210)|@sudo rmmod $(module)
+[Makefile:118](Makefile#L118)|$(call test_file_exists,$(number_file),"-r", "sudo")
+[Makefile:119](Makefile#L119)|$(eval number_file_content = `sudo cat $(number_file)`)
+[Makefile:122](Makefile#L122)|$(eval message_file_content = `sudo cat $(message_file) | tr -d '\0'`)
+[Makefile:123](Makefile#L123)|$(call test_file_exists,$(message_file),"-r", "sudo")
+[Makefile:126](Makefile#L126)|@sudo rmmod $(module_filename)
+[Makefile:140](Makefile#L140)|@sudo mknod $(device_filename) c `cat $(proc_filename)` 0
+[Makefile:143](Makefile#L143)|@sudo rm $(device_filename)
+[Makefile:144](Makefile#L144)|@sudo rmmod $(module_filename)
+[Makefile:162](Makefile#L162)|@sudo rmmod $(module_filename)
+[Makefile:175](Makefile#L175)| @sudo mknod $(device_file) c $(major) 0
+[Makefile:176](Makefile#L176)|@echo "Testing" \| sudo tee $(device_file)
+[Makefile:178](Makefile#L178)|@sudo rm -fv $(device_file)
+[Makefile:179](Makefile#L179)|@sudo rmmod $(module)
+[Makefile:190](Makefile#L190)|@sudo insmod $(module).ko number=$(number) message=\"$(message)\"
+[Makefile:193](Makefile#L193)|@sudo rmmod $(module)
+[Makefile:207](Makefile#L207)|@sudo rmmod ${module}
+[Makefile:219](Makefile#L219)|@sudo insmod $(module).ko
+[Makefile:222](Makefile#L222)|@sudo rmmod $(module)
 [tests.mk:31](tests.mk#L31)|@lsmod \| awk '{print $$1}' \| grep -qE "^$(1)$$" && (sudo rmmod $(1) && sudo insmod $(1).ko) \|\| sudo insmod $(1).ko
 [tests.mk:75](tests.mk#L75)|@sudo dmesg --clear
 [tests.mk:78](tests.mk#L78)|@sudo rmmod $(1)

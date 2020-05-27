@@ -28,6 +28,7 @@ REHEARSALS_BUILD=$(SELF_DIR)build
 
 all:
 	$(info Compiling all rehearsal source files)
+	test -d $(REHEARSALS_BUILD) || mkdir $(REHEARSALS_BUILD)
 	gcc -o $(REHEARSALS_BUILD)/read read.c
 	gcc -o $(REHEARSALS_BUILD)/write write.c
 	gcc -o $(REHEARSALS_BUILD)/io-ports io-ports.c

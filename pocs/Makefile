@@ -28,6 +28,7 @@ POCS_BUILD=$(SELF_DIR)build
 
 all:
 	$(info Compiling all PoC source files)
+	test -d $(POCS_BUILD) || mkdir $(POCS_BUILD)
 	gcc -pthread -O -Wall -Wextra -o $(POCS_BUILD)/io-port-permissions io-port-permissions.c
 
 clean:

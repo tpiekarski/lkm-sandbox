@@ -11,9 +11,11 @@ modules.order
 
 # Rehearsals
 /rehearsals/build/*
+!/rehearsals/build/.gitkeep
 
 # PoC
 /pocs/build/*
+!/pocs/build/.gitkeep
 
 # Miscellaneous files
 *.code-workspace

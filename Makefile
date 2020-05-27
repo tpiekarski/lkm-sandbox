@@ -30,11 +30,23 @@ include $(SELF_DIR)/tests.mk
 ccflags-y := -I$(SELF_DIR)/include $(DEBUG_FLAGS) -std=gnu99 -Wall -Wno-declaration-after-statement
 obj-m += lkm_debugfs.o lkm_device.o lkm_device_numbers.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_pp.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o
 
+.PHONY: pocs rehearsals
+
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	cd pocs && $(MAKE) clean
+	cd rehearsals && $(MAKE) clean
+
+pocs:
+	$(info Building PoCs)
+	cd pocs && $(MAKE) all
+
+rehearsals:
+	$(info Building Rehearsals)
+	cd rehearsals && $(MAKE) all
 
 test:
 	$(info Running all available tests)

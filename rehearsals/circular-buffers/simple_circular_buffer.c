@@ -18,7 +18,7 @@ int read(void)
 	int value = buffer[index_read++];
 	buffer_length--;
 
-	if (index_read = BUFFER_SIZE) {
+	if (index_read == BUFFER_SIZE) {
 		index_read = 0;
 	}
 
@@ -41,7 +41,37 @@ void write(int value)
 	}
 }
 
-int main(int argc, char const *argv[])
+void print_buffer()
 {
+	printf("Contents of buffer: ");
+	for (int i = 0; i < BUFFER_SIZE; i++)
+		printf("%i ", buffer[i]);
+	printf("\n");
+}
+
+int main()
+{
+	int i = 0;
+
+	print_buffer();
+
+	printf("Writing %i values.\n", BUFFER_SIZE);
+	for (i = 1; i < BUFFER_SIZE + 1; i++)
+		write(i);
+
+	print_buffer();
+
+	printf("Reading %i values.\n", BUFFER_SIZE);
+	for (i = 0; i < BUFFER_SIZE; i++)
+		printf("%i ", read());
+	printf("\n");
+
+	print_buffer();
+
+	printf("Writing another single value.\n");
+	write(9);
+
+	print_buffer();
+
 	return 0;
 }

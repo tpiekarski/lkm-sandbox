@@ -31,7 +31,8 @@ all:
 	test -d $(REHEARSALS_BUILD) || mkdir $(REHEARSALS_BUILD)
 	gcc -o $(REHEARSALS_BUILD)/read read.c
 	gcc -o $(REHEARSALS_BUILD)/write write.c
-	gcc -o $(REHEARSALS_BUILD)/io-ports io-ports.c
+	gcc -o $(REHEARSALS_BUILD)/io_ports io_ports.c
+	gcc -o $(REHEARSALS_BUILD)/simple_circular_buffer circular-buffers/simple_circular_buffer.c
 
 clean:
 	@rm -f $(REHEARSALS_BUILD)/*

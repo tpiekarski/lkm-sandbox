@@ -194,9 +194,10 @@ It is never bad to rehearse things, but sometimes a little embarrassing to admit
 
 File|Concept
 ---|---
-[rehearsals/io-ports.c](rehearsals/io-ports.c)|Low-level port-mapped I/O operations
-[rehearsals/read.c](rehearsals/read.c)|Reading of files in vanilla C
-[rehearsals/write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
+[io_ports.c](rehearsals/io_ports.c)|Low-level port-mapped I/O operations
+[read.c](rehearsals/read.c)|Reading of files in vanilla C
+[simple_circular_buffer.c](rehearsals/circular-buffers/simple_circular_buffer.c)|Simple and straight forward circular buffer
+[write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
 
 To build those files just run ``make clean && make`` in `./rehearsals/` and all executables will be placed in
 the build directory.
@@ -213,6 +214,7 @@ the build directory.
 - GNU, [Licenses HowTo](https://www.gnu.org/licenses/gpl-howto.en.html)
 - Kernelnewbies, [Sequential Files HowTo](https://kernelnewbies.org/Documents/SeqFileHowTo)
 - Linux Kernel Mailinglist, [[RFC PATCH] debugfs - yet another in-kernel file system](https://lkml.org/lkml/2004/12/9/202) by Greg Kroah-Hartman
+- Medium, [How To Implement A Simple Circular Buffer In C](https://medium.com/@charlesdobson/how-to-implement-a-simple-circular-buffer-in-c-34b7e945d30e) by [Charles Dobson](https://medium.com/@charlesdobson)
 - Medium, [Writing simple Linux Kernel Module](https://blog.sourcerer.io/writing-a-simple-linux-kernel-module-d9dc3762c234) by [Robert W. Oliver II](https://blog.sourcerer.io/@rwoliver2)
 - Open source for you, [Debugging the Linux Kernel with debugfs](https://opensourceforu.com/2010/10/debugging-linux-kernel-with-debugfs/) by [Surya Prabhakar](https://opensourceforu.com/author/surya-prabhakar/)
 - Pointer-Overloading, [Creating entry in proc...](http://pointer-overloading.blogspot.com/2013/09/linux-creating-entry-in-proc-file.html) by eniac

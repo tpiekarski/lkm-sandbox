@@ -194,6 +194,7 @@ It is never bad to rehearse things, but sometimes a little embarrassing to admit
 
 File|Concept
 ---|---
+[fork.c](rehearsals/fork.c)|Creating child process with fork
 [io_ports.c](rehearsals/io_ports.c)|Low-level port-mapped I/O operations
 [read.c](rehearsals/read.c)|Reading of files in vanilla C
 [simple_circular_buffer.c](rehearsals/circular-buffers/simple_circular_buffer.c)|Simple and straight forward circular buffer

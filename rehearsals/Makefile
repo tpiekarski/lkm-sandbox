@@ -29,6 +29,7 @@ REHEARSALS_BUILD=$(SELF_DIR)build
 all:
 	$(info Compiling all rehearsal source files)
 	test -d $(REHEARSALS_BUILD) || mkdir $(REHEARSALS_BUILD)
+	gcc -o $(REHEARSALS_BUILD)/clone clone.c
 	gcc -o $(REHEARSALS_BUILD)/execve execve.c
 	gcc -o $(REHEARSALS_BUILD)/execve-target execve-target.c
 	gcc -o $(REHEARSALS_BUILD)/fork fork.c

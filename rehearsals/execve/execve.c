@@ -25,36 +25,24 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-void print_pids()
-{
-	printf("Parent PID=%d, current PID=%d\n", getppid(), getpid());
-}
+#define EXECVE_TARGET "execve-target"
 
-void pause_execution()
+int main(int argc, char *argv[], char *envp[])
 {
-	printf("Press a key to continue...");
-	getc(stdin);
-}
+	printf("Running execve PID=%d\n", getpid());
+	printf("Executing %s with execve\n", EXECVE_TARGET);
+	int rcval = execve(EXECVE_TARGET, argv, envp);
 
-int main()
-{
-	print_pids();
-	pause_execution();
-	printf("Forking process with fork...\n");
-	pid_t fpid = fork();
+	// current process will be left here if execve was successful
 
-		if (fpid == 0)
-		printf(" > That's the child process, fpid=%d\n", fpid);
-	else if (fpid > 0)
-		printf(" > That's the parent process, fpid=%d\n", fpid);
-	else
+	if (rcval < 0)
 		goto out;
 
-	print_pids();
+	printf("This line will never be hit!\n");
 
 	return 0;
 
 out:
-	perror("fork");
+	perror("execve");
 	return -1;
 }

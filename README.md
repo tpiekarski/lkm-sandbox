@@ -4,8 +4,8 @@
 
 ## [Overview](#overview)
 
-[Modules](#modules) / [Building](#building) / [Testing](#testing) / [Make](#make) / [Disclaimer](#disclaimer) /
- [License](#license) / [Notes](#notes) / [PoC](#poc) / [Rehearsal](#rehearsal) / [Books](#books) / [Links](#links)
+[Modules](#modules) / [Building](#building) / [Make](#make) / [Testing](#testing) / [PoC](#poc) / [Rehearsal](#rehearsal)
+/ [Notes](#notes) / [Disclaimer](#disclaimer) / [License](#license) / [Books](#books) / [Links](#links)
 
 The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
@@ -46,6 +46,10 @@ git clone --recurse-submodules git@github.com:tpiekarski/lkm-sandbox.git
 ```sh
 make clean && make
 ```
+
+## [Make](#make)
+
+![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
 
 ## [Testing](#testing)
 
@@ -101,9 +105,47 @@ cat /sys/module/lkm_parameters/parameters/message
 sudo rmmod lkm_parameters
 ```
 
-## [Make](#make)
+## [PoC](#poc)
 
-![Screenshots of make](images/screenshots.gif?raw=true "Screenshots of make")
+While triaging, debugging and working with bugs and issues it can come in handy to experiment with some code and write
+a PoC to prove some statements or to answer a question. In the following are a collection of such PoC which follow up
+on a lead to prove statements, ideas and questions I recently came across.
+
+File|Description|Motivation
+---|---|---
+[io-port-permissions.c](pocs/io-port-permissions.c)|Are I/O Permissions granted by process or thread?|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
+
+## [Rehearsal](#rehearsal)
+
+For a better understanding of concepts in the kernelspace it is necessary to review and rehearse fundamental basics
+of C and the standard library. Next to being able to improve understanding it is possible to compare approaches.
+Most of those basics are low-level, starting with file I/O and can be looked through as a companion source.
+It is never bad to rehearse things, but sometimes a little embarrassing to admit having to rehearse such things :)
+
+File|Concept
+---|---
+[clone.c](rehearsals/clone.c)|Cloning processes with clone()
+[execve.c](rehearsals/execve/execve.c)|Executing another process with execve()
+[fork.c](rehearsals/fork.c)|Creating child process with fork()
+[io_ports.c](rehearsals/io_ports.c)|Low-level port-mapped I/O operations
+[read.c](rehearsals/read.c)|Reading of files in vanilla C
+[simple_circular_buffer.c](rehearsals/circular-buffers/simple_circular_buffer.c)|Simple and straight forward circular buffer
+[write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
+
+To build those files just run ``make clean && make`` in `./rehearsals/` and all executables will be placed in
+the build directory.
+
+## [Notes](#notes)
+
+"A Linux kernel module is a piece of compiled binary code that is inserted directly into
+the Linux kernel, running at ring 0, the lowest and least protected ring of execution in
+the x86–64 processor."
+
+"Traditional application development paradigms can be largely discarded. Other than loading
+and unloading of your module, you’ll be writing code that responds to system events rather
+than operates in a sequential pattern."
+
+"With kernel development, you’re writing APIs, not applications themselves."
 
 ## [Disclaimer](#disclaimer)
 
@@ -162,48 +204,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with LKM Sandbox. If not, see [<https://www.gnu.org/licenses/>](https://www.gnu.org/licenses/).
-
-## [Notes](#notes)
-
-"A Linux kernel module is a piece of compiled binary code that is inserted directly into
-the Linux kernel, running at ring 0, the lowest and least protected ring of execution in
-the x86–64 processor."
-
-"Traditional application development paradigms can be largely discarded. Other than loading
-and unloading of your module, you’ll be writing code that responds to system events rather
-than operates in a sequential pattern."
-
-"With kernel development, you’re writing APIs, not applications themselves."
-
-## [PoC](#poc)
-
-While triaging, debugging and working with bugs and issues it can come in handy to experiment with some code and write
-a PoC to prove some statements or to answer a question. In the following are a collection of such PoC which follow up
-on a lead to prove statements, ideas and questions I recently came across.
-
-File|Description|Motivation
----|---|---
-[io-port-permissions.c](pocs/io-port-permissions.c)|Are I/O Permissions granted by process or thread?|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
-
-## [Rehearsal](#rehearsal)
-
-For a better understanding of concepts in the kernelspace it is necessary to review and rehearse fundamental basics
-of C and the standard library. Next to being able to improve understanding it is possible to compare approaches.
-Most of those basics are low-level, starting with file I/O and can be looked through as a companion source.
-It is never bad to rehearse things, but sometimes a little embarrassing to admit having to rehearse such things :)
-
-File|Concept
----|---
-[clone.c](rehearsals/clone.c)|Cloning processes with clone()
-[execve.c](rehearsals/execve/execve.c)|Executing another process with execve()
-[fork.c](rehearsals/fork.c)|Creating child process with fork()
-[io_ports.c](rehearsals/io_ports.c)|Low-level port-mapped I/O operations
-[read.c](rehearsals/read.c)|Reading of files in vanilla C
-[simple_circular_buffer.c](rehearsals/circular-buffers/simple_circular_buffer.c)|Simple and straight forward circular buffer
-[write.c](rehearsals/write.c)|Writing/Appending to files in vanilla C
-
-To build those files just run ``make clean && make`` in `./rehearsals/` and all executables will be placed in
-the build directory.
 
 ## [Books](#books)
 

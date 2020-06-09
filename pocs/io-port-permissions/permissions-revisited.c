@@ -69,6 +69,10 @@ int main(int argc, char const *argv[])
 
 	struct method m = { argv[1], argv[2] };
 
+	if (strncmp(m.permissions, "iopl", 4) != 0 ||
+	    strncmp(m.permissions, "ioperm", 6) != 0)
+		goto usage;
+
 	int permissions_granted = get_permissions(m.permissions);
 
 	if (permissions_granted != 0) {

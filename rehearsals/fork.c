@@ -43,7 +43,7 @@ int main()
 	printf("Forking process with fork...\n");
 	pid_t fpid = fork();
 
-		if (fpid == 0)
+	if (fpid == 0)
 		printf(" > That's the child process, fpid=%d\n", fpid);
 	else if (fpid > 0)
 		printf(" > That's the parent process, fpid=%d\n", fpid);

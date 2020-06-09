@@ -21,11 +21,31 @@
  * 
  */
 
-#include <sched.h>
-#include <stdio.h>
-#include <string.h>
+#include <sched.h> // clone
+#include <stdio.h> // printf
+#include <string.h> // strncmp
+#include <sys/io.h> // iopl
+#include <sys/types.h> // pid_t
 #include <sys/wait.h>
-#include <unistd.h>
+#include <unistd.h> //
+
+struct method {
+	const char *permissions;
+	const char *creation;
+};
+
+int get_permissions(const char *method)
+{
+	int retval = -1;
+	printf("Getting I/O port permissions with %s.\n", method);
+
+	if (strcmp(method, "iopl") == 0)
+		retval = iopl(3);
+	else if (strcmp(method, "ioperm") == 0)
+		retval = ioperm(0, 0xFFFF, 1);
+
+	return retval;
+}
 
 void permissions_by_child()
 {
@@ -44,16 +64,25 @@ void permissions_by_fork()
 
 int main(int argc, char const *argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 		goto usage;
 
-	const char *method = argv[1];
+	struct method m = { argv[1], argv[2] };
 
-	if (strncmp(method, "child", 5) == 0)
+	int permissions_granted = get_permissions(m.permissions);
+
+	if (permissions_granted != 0) {
+		printf("Granting permission with %s failed, aborting.\n",
+		       m.permissions);
+
+		goto error;
+	}
+
+	if (strncmp(m.creation, "child", 5) == 0)
 		permissions_by_child();
-	else if (strncmp(method, "execve", 6) == 0)
+	else if (strncmp(m.creation, "execve", 6) == 0)
 		permissions_by_execve();
-	else if (strncmp(method, "fork", 4) == 0)
+	else if (strncmp(m.creation, "fork", 4) == 0)
 		permissions_by_fork();
 	else
 		goto usage;
@@ -66,7 +95,7 @@ error:
 	return -2;
 
 usage:
-	printf("Usage: %s [child|fork|execve]\n", argv[0]);
+	printf("Usage: %s [iopl|ioperm] [child|fork|execve]\n", argv[0]);
 
 	return -1;
 }

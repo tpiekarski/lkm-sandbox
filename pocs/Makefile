@@ -30,7 +30,7 @@ C_OPTS=-Wall -Wextra
 all:
 	$(info Compiling all PoC source files)
 	test -d $(POCS_BUILD) || mkdir $(POCS_BUILD)
-	gcc $(C_OPTS) -pthread -O -o $(POCS_BUILD)/permissions-by-pthread io-port-permissions/permissions-by-pthread.c
+	gcc $(C_OPTS) -pthread -O -o $(POCS_BUILD)/comparing-iopl-ioperm io-port-permissions/comparing-iopl-ioperm.c
 	gcc $(C_OPTS) -Wno-unused-parameter -o $(POCS_BUILD)/permissions-revisited io-port-permissions/permissions-revisited.c
 
 clean:

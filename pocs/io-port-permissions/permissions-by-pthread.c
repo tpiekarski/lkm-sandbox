@@ -1,8 +1,8 @@
 /*
- * LKM Sandbox::io-port-permissions
+ * LKM Sandbox::permissions-by-pthread
  * <https://github.com/tpiekarski/lkm-sandbox>
  * ---
- * Copyright 2020 
+ * Copyright 2020 Thomas Piekarski <t.piekarski@deloquencia.de>
  *
  * This file is part of LKM Sandbox.
  * 

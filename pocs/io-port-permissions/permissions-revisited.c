@@ -34,6 +34,7 @@
 
 #define PORT 0x378 // lp0
 #define STACK_SIZE 1024 * 1024
+#define EXECVE_TARGET "permissions-with-execve-target"
 
 struct method {
 	const char *permissions;
@@ -85,9 +86,14 @@ int permissions_with_clone()
 	return retval;
 }
 
-void permissions_with_execve()
+int permissions_with_execve(char *argv[], char *envp[])
 {
 	printf("Testing I/O Permissions inside process created with execve()\n");
+
+	test_read("parent", getpid());
+	int retval = execve(EXECVE_TARGET, argv, envp);
+
+	return retval;
 }
 
 int permissions_with_fork()
@@ -107,7 +113,7 @@ int permissions_with_fork()
 	return retval;
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[], char *envp[])
 {
 	if (argc != 3)
 		goto usage;
@@ -135,7 +141,7 @@ int main(int argc, char const *argv[])
 	if (strncmp(m.creation, "clone", 5) == 0)
 		retval = permissions_with_clone();
 	else if (strncmp(m.creation, "execve", 6) == 0)
-		permissions_with_execve();
+		retval = permissions_with_execve(argv, envp);
 	else if (strncmp(m.creation, "fork", 4) == 0)
 		retval = permissions_with_fork();
 	else

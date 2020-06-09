@@ -21,15 +21,19 @@
  * 
  */
 
-#include <sched.h> // clone
-#include <stdio.h> // printf
-#include <string.h> // strncmp
-#include <sys/io.h> // iopl
-#include <sys/types.h> // pid_t
+#define _GNU_SOURCE
+
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/io.h>
+#include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h> // fork
+#include <unistd.h>
 
 #define PORT 0x378 // lp0
+#define STACK_SIZE 1024 * 1024
 
 struct method {
 	const char *permissions;
@@ -52,22 +56,44 @@ int get_permissions(const char *method)
 void test_read(const char *family, pid_t pid)
 {
 	printf("Trying to access port from %s (PID=%d)\n", family, pid);
-	printf("Reading from %x: %x\n", PORT, inb(PORT));
+	printf(" > Reading from %x: %x\n", PORT, inb(PORT));
 }
 
-void permissions_by_clone()
+int cloned_child_func(void *retval)
+{
+	test_read("child", getpid());
+
+	return 0;
+}
+
+int permissions_with_clone()
 {
 	printf("Testing I/O Permissions inside process created with clone()\n");
+
+	int retval = 0;
+	char *stack = malloc(STACK_SIZE);
+	if (stack == NULL)
+		return -1;
+	char *stack_top = stack + STACK_SIZE;
+	pid_t cpid = clone(cloned_child_func, stack_top, SIGCHLD, &retval);
+
+	if (cpid == -1)
+		retval = -1;
+
+	test_read("parent", getpid());
+
+	return retval;
 }
 
-void permissions_by_execve()
+void permissions_with_execve()
 {
 	printf("Testing I/O Permissions inside process created with execve()\n");
 }
 
-int permissions_by_fork()
+int permissions_with_fork()
 {
 	printf("Testing I/O Permissions inside process created with fork()\n");
+
 	int retval = 0;
 	pid_t fpid = fork();
 
@@ -107,11 +133,11 @@ int main(int argc, char const *argv[])
 	int retval = 0;
 
 	if (strncmp(m.creation, "clone", 5) == 0)
-		permissions_by_clone();
+		retval = permissions_with_clone();
 	else if (strncmp(m.creation, "execve", 6) == 0)
-		permissions_by_execve();
+		permissions_with_execve();
 	else if (strncmp(m.creation, "fork", 4) == 0)
-		retval = permissions_by_fork();
+		retval = permissions_with_fork();
 	else
 		goto usage;
 

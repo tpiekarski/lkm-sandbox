@@ -27,7 +27,9 @@
 #include <sys/io.h> // iopl
 #include <sys/types.h> // pid_t
 #include <sys/wait.h>
-#include <unistd.h> //
+#include <unistd.h> // fork
+
+#define PORT 0x378 // lp0
 
 struct method {
 	const char *permissions;
@@ -47,19 +49,36 @@ int get_permissions(const char *method)
 	return retval;
 }
 
-void permissions_by_child()
+void test_read(const char *family, pid_t pid)
 {
-	printf("I/O Permissions by child()\n");
+	printf("Trying to access port from %s (PID=%d)\n", family, pid);
+	printf("Reading from %x: %x\n", PORT, inb(PORT));
+}
+
+void permissions_by_clone()
+{
+	printf("Testing I/O Permissions inside process created with clone()\n");
 }
 
 void permissions_by_execve()
 {
-	printf("I/O Permissions by execve()\n");
+	printf("Testing I/O Permissions inside process created with execve()\n");
 }
 
-void permissions_by_fork()
+int permissions_by_fork()
 {
-	printf("I/O Permissions by fork()\n");
+	printf("Testing I/O Permissions inside process created with fork()\n");
+	int retval = 0;
+	pid_t fpid = fork();
+
+	if (fpid == 0)
+		test_read("child", getpid());
+	else if (fpid > 0)
+		test_read("parent", getpid());
+	else
+		retval = -1;
+
+	return retval;
 }
 
 int main(int argc, char const *argv[])
@@ -69,9 +88,12 @@ int main(int argc, char const *argv[])
 
 	struct method m = { argv[1], argv[2] };
 
+	// todo: fix failsave with XOR
+	/*
 	if (strncmp(m.permissions, "iopl", 4) != 0 ||
 	    strncmp(m.permissions, "ioperm", 6) != 0)
 		goto usage;
+	*/
 
 	int permissions_granted = get_permissions(m.permissions);
 
@@ -82,14 +104,19 @@ int main(int argc, char const *argv[])
 		goto error;
 	}
 
-	if (strncmp(m.creation, "child", 5) == 0)
-		permissions_by_child();
+	int retval = 0;
+
+	if (strncmp(m.creation, "clone", 5) == 0)
+		permissions_by_clone();
 	else if (strncmp(m.creation, "execve", 6) == 0)
 		permissions_by_execve();
 	else if (strncmp(m.creation, "fork", 4) == 0)
-		permissions_by_fork();
+		retval = permissions_by_fork();
 	else
 		goto usage;
+
+	if (retval != 0)
+		goto error;
 
 	return 0;
 
@@ -99,7 +126,7 @@ error:
 	return -2;
 
 usage:
-	printf("Usage: %s [iopl|ioperm] [child|fork|execve]\n", argv[0]);
+	printf("Usage: %s [iopl|ioperm] [clone|fork|execve]\n", argv[0]);
 
 	return -1;
 }

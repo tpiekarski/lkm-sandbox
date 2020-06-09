@@ -23,13 +23,16 @@
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 POCS_BUILD=$(SELF_DIR)build
+C_OPTS=-Wall -Wextra
 
 .PHONY: pocs # Force targets to be re-made independent of depending files
 
 all:
 	$(info Compiling all PoC source files)
 	test -d $(POCS_BUILD) || mkdir $(POCS_BUILD)
-	gcc -pthread -O -Wall -Wextra -o $(POCS_BUILD)/io-port-permissions io-port-permissions.c
+	gcc $(C_OPTS) -pthread -O -o $(POCS_BUILD)/comparing-iopl-ioperm io-port-permissions/comparing-iopl-ioperm.c
+	gcc $(C_OPTS) -Wno-unused-parameter -o $(POCS_BUILD)/permissions-revisited io-port-permissions/permissions-revisited.c
+		gcc $(C_OPTS) -Wno-unused-parameter -o $(POCS_BUILD)/permissions-with-execve-target io-port-permissions/permissions-with-execve-target.c
 
 clean:
 	@rm -f $(POCS_BUILD)/*

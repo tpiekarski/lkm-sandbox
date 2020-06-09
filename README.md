@@ -113,7 +113,8 @@ on a lead to prove statements, ideas and questions I recently came across.
 
 File|Description|Motivation
 ---|---|---
-[io-port-permissions.c](pocs/io-port-permissions.c)|Are I/O Permissions granted by process or thread?|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
+[comparing-iopl-ioperm.c](pocs/io-port-permissions/comparing-iopl-ioperm.c)|Comparing I/O Permissions granted by iopl and ioperm|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
+[permissions-revisited.c](pocs/io-port-permissions/permissions-revisited.c)|How are I/O Permissions granted when using clone, fork or execve?|[Bug 205317 - iopl(2) - privilege level is set per-process or per-thread?](https://bugzilla.kernel.org/show_bug.cgi?id=205317)
 
 ## [Rehearsal](#rehearsal)
 

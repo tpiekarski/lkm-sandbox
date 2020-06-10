@@ -23,6 +23,7 @@
 
 #define _GNU_SOURCE
 
+#include <pthread.h>
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +61,7 @@ void test_read(const char *family, pid_t pid)
 	printf(" > Reading from %x: %x\n", PORT, inb(PORT));
 }
 
-int cloned_child_func(void *retval)
+int clone_func(void *retval)
 {
 	test_read("child", getpid());
 
@@ -76,7 +77,7 @@ int permissions_with_clone()
 	if (stack == NULL)
 		return -1;
 	char *stack_top = stack + STACK_SIZE;
-	pid_t cpid = clone(cloned_child_func, stack_top, SIGCHLD, &retval);
+	pid_t cpid = clone(clone_func, stack_top, SIGCHLD, &retval);
 
 	if (cpid == -1)
 		retval = -1;
@@ -113,6 +114,27 @@ int permissions_with_fork()
 	return retval;
 }
 
+void *pthread_func()
+{
+	printf("Accessing by thread (TID=%d)\n", gettid());
+	test_read("child", getpid());
+
+	return NULL;
+}
+
+int permissions_with_pthread()
+{
+	printf("Testing I/O Permissions inside process created with pthread\n");
+
+	int retval = 0;
+	pthread_t thread;
+	pthread_create(&thread, NULL, pthread_func, NULL);
+	test_read("parent", getpid());
+	pthread_join(thread, NULL);
+
+	return retval;
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
 	if (argc != 3)
@@ -144,6 +166,8 @@ int main(int argc, char *argv[], char *envp[])
 		retval = permissions_with_execve(argv, envp);
 	else if (strncmp(m.creation, "fork", 4) == 0)
 		retval = permissions_with_fork();
+	else if (strncmp(m.creation, "pthread", 7) == 0)
+		retval = permissions_with_pthread();
 	else
 		goto usage;
 
@@ -158,7 +182,8 @@ error:
 	return -2;
 
 usage:
-	printf("Usage: %s [iopl|ioperm] [clone|fork|execve]\n", argv[0]);
+	printf("Usage: %s [iopl|ioperm] [clone|fork|execve|pthread]\n",
+	       argv[0]);
 
 	return -1;
 }

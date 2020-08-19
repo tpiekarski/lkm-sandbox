@@ -21,11 +21,12 @@
 # 
 #
 
-SHELL:=/bin/bash
+SHELL := /bin/bash
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+MAKE_INCLUDE := $(SELF_DIR)/include/make
 
-include $(SELF_DIR)/debug.mk
-include $(SELF_DIR)/tests.mk
+include $(MAKE_INCLUDE)/debug.mk
+include $(MAKE_INCLUDE)/tests.mk
 
 ccflags-y := -I$(SELF_DIR)/include $(DEBUG_FLAGS) -std=gnu99 -Wall -Wno-declaration-after-statement
 obj-m += lkm_debugfs.o lkm_device.o lkm_device_numbers.o lkm_mem.o lkm_mev.o lkm_parameters.o lkm_pp.o lkm_proc.o lkm_process.o lkm_sandbox.o lkm_skeleton.o

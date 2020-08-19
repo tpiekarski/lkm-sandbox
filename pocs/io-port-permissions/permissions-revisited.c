@@ -33,6 +33,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if __GLIBC__ == 2 && __GLIBC_MINOR__ < 30
+// Workaround for missing gettid() - it is only available with glibc >= 2.30.
+#include <sys/syscall.h>
+#define gettid() (int)syscall(SYS_gettid)
+#endif
+
 #define PORT 0x378 // lp0
 #define STACK_SIZE 1024 * 1024
 #define EXECVE_TARGET "permissions-with-execve-target"

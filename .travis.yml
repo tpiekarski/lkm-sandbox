@@ -1,6 +1,7 @@
 language: c
 compiler: gcc
 os: linux
+dist: focal
 env:
   global:
     - MAKEFLAGS="-j $(nproc)"
@@ -9,10 +10,10 @@ jobs:
   include:
     - os: linux
       dist: bionic
-      arch: x86_64
+      arch: amd64
     - os: linux
       dist: focal
-      arch: x86_64
+      arch: amd64
 
 install:
   - sudo apt-get update

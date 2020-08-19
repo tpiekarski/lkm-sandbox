@@ -14,6 +14,12 @@ jobs:
     - os: linux
       dist: focal
       arch: amd64
+    - os: linux
+      dist: bionic
+      arch: arm64
+    - os: linux
+      dist: focal
+      arch: arm64
 
 install:
   - sudo apt-get update

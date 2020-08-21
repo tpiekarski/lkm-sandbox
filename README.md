@@ -7,14 +7,14 @@
 [Modules](#modules) / [Building](#building) / [Make](#make) / [Testing](#testing) / [PoC](#poc) / [Rehearsal](#rehearsal)
 / [Notes](#notes) / [Disclaimer](#disclaimer) / [License](#license) / [Books](#books) / [Links](#links)
 
-The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, test and experiment with
+The Linux Kernel Module (LKM) Sandbox is a collection of different modules to learn, discover and experiment with
 the development of Linux Kernel Modules. The purpose of this repository is also to practice development within
 the Linux Kernel and study miscellaneous concepts before moving on to submit the very first patch to the kernel.
 
-Most of the modules illustrate one concept and shows how to use the Kernel API. A few of the modules combine more
-than one concept to present concepts working together. For example the module *[lkm_device](lkm_device.c)* is
-accessing a character device and storing its major number in /proc and the module *[lkm_mem](lkm_mem.c)* is
-exposing memory/swap information by files in /proc.
+Most of the modules illustrate one concept and show how to use the Kernel API. A few of the modules combine more
+than one concept to present how concepts are working together. For example the module *[lkm_device](lkm_device.c)*
+is accessing a character device and storing its major number in /proc. Or the module *[lkm_mem](lkm_mem.c)* is
+exposing memory/swap information by files in /proc as well.
 
 I hope it can be valuable for other developers which try to approach the Linux Kernel.
 
@@ -22,7 +22,7 @@ I hope it can be valuable for other developers which try to approach the Linux K
 
 No.|Module|Source|Description
 ---|---|---|---
-1|LKM DebugFS|[lkm_debugfs.c](lkm_debugfs.c)|Module showing how to use the debugging filesystem
+1|LKM DebugFS|[lkm_debugfs.c](lkm_debugfs.c)|Module showing how to use the debugging filesystem *debugfs*
 2|LKM Device|[lkm_device.c](lkm_device.c)|Module showing how to operate with character devices and storing device information in /proc
 3|LKM Device Numbers|[lkm_device_numbers.c](lkm_device_numbers.c)|Illustrating statically and dynamically allocated device numbers
 3|LKM Memory|[lkm_mem.c](lkm_mem.c)|Module exposing memory and swap information to /proc

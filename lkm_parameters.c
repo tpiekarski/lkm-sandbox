@@ -61,7 +61,7 @@ static int __init lkm_parameters_init(void)
 
 static void __exit lkm_parameters_exit(void)
 {
-	// nothing todo here
+	// nothing to do here
 }
 
 module_init(lkm_parameters_init);
